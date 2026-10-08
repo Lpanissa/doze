@@ -85,6 +85,69 @@ ol{padding-left:20px;color:var(--mut);font-size:14px}ol li{margin:6px 0}
 .xbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--mut);font-size:22px;line-height:1;padding:0;cursor:pointer;display:grid;place-items:center}
 .thumbs-sm img{height:150px}
 .pri.sm{padding:8px 18px;font-size:14px;border-radius:12px}
+
+/* ===== Responsivo: celular, tablet e computador ===== */
+img{max-width:100%}
+.wrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.name,h2{overflow-wrap:anywhere}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.lst>.empty{grid-column:1/-1}
+
+/* celulares pequenos */
+@media(max-width:380px){
+  .logo{font-size:20px}.pts{padding:5px 10px;font-size:13px}
+  h2{font-size:22px}.hero h1{font-size:34px}.hero{padding-top:48px}
+  nav{padding-left:6px;padding-right:6px}nav a{font-size:10px}nav a svg{width:22px;height:22px}
+  .stats{gap:6px}.stat b{font-size:20px}.stat{padding:10px 6px}
+  .thumbs img{height:220px}.fab{right:12px;padding:12px 16px;font-size:15px}
+  .card{padding:12px}.ico{width:48px;height:48px;font-size:20px}
+}
+/* celular deitado */
+@media(max-height:480px) and (orientation:landscape){
+  .hero{padding-top:20px}.hero .big{width:64px;height:64px;font-size:28px;margin-bottom:10px}
+  nav a{flex-direction:row;justify-content:center;gap:6px;padding:6px 2px}
+  .fab{bottom:calc(70px + env(safe-area-inset-bottom))}.toast{bottom:76px}body{padding-bottom:84px}
+}
+/* tablet */
+@media(min-width:700px){
+  .wrap{max-width:760px;padding-left:24px;padding-right:24px}
+  .mdl{max-width:480px}.fmc{max-width:520px}
+  .lst,.v-tests,.v-mine{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px;align-items:start}
+  .v-tests>*,.v-mine>*{grid-column:1/-1}
+  .v-tests>.card:not(.how),.v-mine>.card:not(.how){grid-column:auto}
+  .v-mine>.card:has(.fcont){grid-column:1/-1}
+  .thumbs img{height:300px}
+}
+/* computador */
+@media(min-width:1024px){
+  .wrap{max-width:1120px;padding-left:32px;padding-right:32px}
+  .wrap.hero{max-width:760px;padding-top:100px}.hero p,.hero .steps{max-width:520px}
+  .v-me,.v-detail{max-width:780px}
+  .lst,.v-tests,.v-mine{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .v-detail .thumbs img{height:360px}
+  h2{font-size:28px;margin-top:26px}
+  /* menu vai para o topo, no meio da barra */
+  nav{top:0;bottom:auto;height:60px;padding:0;display:flex;align-items:center;justify-content:center}
+  nav .bar2{max-width:460px;padding:4px;border-radius:16px;box-shadow:none;background:transparent;border-color:transparent;backdrop-filter:none;-webkit-backdrop-filter:none}
+  nav a{flex-direction:row;gap:8px;padding:9px 16px;font-size:14px;border-radius:12px;white-space:nowrap}
+  nav a svg{width:20px;height:20px}
+  nav a .dot{top:-3px;right:-2px}
+  .fab{right:28px;bottom:calc(28px + env(safe-area-inset-bottom))}
+  .toast{bottom:32px}.ad{bottom:0;max-width:728px}
+  body{padding-bottom:90px}
+}
+@media(min-width:1500px){
+  .wrap{max-width:1280px}
+  .lst,.v-tests,.v-mine{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+/* mouse: efeito ao passar por cima */
+@media(hover:hover){
+  .card{transition:border-color .15s,transform .15s}
+  .card.tap:hover{border-color:var(--ac);transform:translateY(-2px)}
+  button:not(:disabled):hover,.btn:hover{opacity:.9}
+  nav a:not(.on):hover{color:var(--tx);background:rgba(142,160,189,.14)}
+  .chip:hover{border-color:var(--ac);color:var(--tx)}
+}
 </style>
 </head>
 <body>
@@ -323,7 +386,7 @@ function detailView(){
   if(!a){st.detail=null;return appsView();}
   const t=st.myTests.find(x=>x.app_id===a.id&&x.status!=='saiu');
   const mine=st.myApps.some(x=>x.id===a.id);
-  const w=el('div',{class:'wrap view'},el('button',{class:'back',onclick:goBack},'← Voltar'),
+  const w=el('div',{class:'wrap view v-detail'},el('button',{class:'back',onclick:goBack},'← Voltar'),
     el('div',{class:'row',style:'align-items:center'},icon(a.icon_url,a.name),el('div',{class:'grow'},el('h2',{style:'margin:0'},a.name),el('div',{class:'mut'},'por ',a.owner_name||'desenvolvedor',' · ',a.category||'Outros'))));
   const shots=(a.screenshots||[]).filter(u=>/^https:\/\//.test(u));
   if(shots.length)w.append(el('div',{class:'thumbs',style:'margin-top:14px'},shots.map(u=>el('img',{src:u,alt:'Print do app',loading:'lazy'}))));
@@ -344,7 +407,7 @@ function grpLine(a){return a.start_mode==='livre'?el('div',{class:'mut'},el('b',
 function appsView(){
   const mineIds=new Set(st.myApps.map(a=>a.id));
   const joined=new Map(st.myTests.map(t=>[t.app_id,t]));
-  const box=el('div',{});
+  const box=el('div',{class:'lst'});
   const fill=()=>{
     const q=st.q.toLowerCase();
     const list=st.apps.filter(a=>!mineIds.has(a.id)&&(!st.cat||a.category===st.cat)&&(a.name+a.description+(a.category||'')).toLowerCase().includes(q));
@@ -360,7 +423,7 @@ function appsView(){
   const inp=el('input',{placeholder:'Buscar app…',value:st.q,oninput:e=>{st.q=e.target.value;clr.style.display=st.q?'flex':'none';fill();}});
   const clr=el('button',{class:'clr',type:'button','aria-label':'Limpar busca',style:'display:'+(st.q?'flex':'none'),onclick:()=>{st.q='';inp.value='';clr.style.display='none';fill();inp.focus();}},'×');
   fill();
-  return el('div',{class:'wrap view'},el('h2',{},'Apps para testar'),el('p',{class:'sub'},'Peça para testar. Quando o dono aceitar, o seu app é liberado.'),
+  return el('div',{class:'wrap view v-apps'},el('h2',{},'Apps para testar'),el('p',{class:'sub'},'Peça para testar. Quando o dono aceitar, o seu app é liberado.'),
     el('div',{class:'search'},svg('search'),inp,clr),chips(()=>fill()),box,el('div',{class:'acts',style:'justify-content:center;margin-top:8px'},el('button',{class:'sec',onclick:inviteShare},'Convidar amigos para o Os Doze')));
 }
 const STATUS={pendente:['Aguardando o dono do app aceitar você','w'],adicionado:['Liberado: abra o link e instale','ok'],instalado:['Testando','ok'],concluido:['Concluído','ok'],saiu:['Você saiu','']};
@@ -388,7 +451,7 @@ function testModal(t0){
 function testsView(){
   const list=st.myTests.filter(t=>t.status!=='saiu');
   const need=list.filter(t=>t.status==='instalado'&&!t.checked_today);
-  const w=el('div',{class:'wrap view'},el('h2',{},'Meus testes'),el('p',{class:'sub'},'Acompanhe os apps que você está testando.'));
+  const w=el('div',{class:'wrap view v-tests'},el('h2',{},'Meus testes'),el('p',{class:'sub'},'Acompanhe os apps que você está testando.'));
   if(need.length)w.append(el('div',{class:'card',style:'border-color:var(--warn)'},el('div',{class:'name'},'Check-in de hoje pendente'),el('div',{class:'mut'},'Abra o app que você está testando, use um pouco e faça o check-in abaixo. Sem check-ins, o teste não conta.')));
   if(!list.length){w.append(empty('tests','Você ainda não está testando nenhum app. Escolha um na aba "Apps".'));return w;}
   list.forEach(t=>{
@@ -472,7 +535,7 @@ function testersCard(a,ts){
         }):el('div',{class:'empty'},'Ninguém entrou ainda.')));
 }
 function mineView(){
-  const w=el('div',{class:'wrap view'},el('h2',{},'Meus apps'),el('p',{class:'sub'},'Publique seu app e acompanhe seus testadores.'));
+  const w=el('div',{class:'wrap view v-mine'},el('h2',{},'Meus apps'),el('p',{class:'sub'},'Publique seu app e acompanhe seus testadores.'));
   const pts=st.profile?st.profile.points:0;const nt=st.myTests.filter(t=>['adicionado','instalado','concluido'].includes(t.status)).length;
   w.append(el('details',{class:'card how'},el('summary',{class:'name'},'Como funciona'),
     el('ol',{class:'mut',style:'padding-left:18px;margin:8px 0'},
@@ -530,7 +593,7 @@ function meView(){
   const p=st.profile||{};
   const done=st.myTests.filter(t=>t.status==='concluido').length;
   const going=st.myTests.filter(t=>t.status!=='saiu'&&t.status!=='concluido').length;
-  return el('div',{class:'wrap view'},
+  return el('div',{class:'wrap view v-me'},
     el('div',{class:'profile'},avatar(),el('div',{class:'name',style:'font-size:20px'},p.name||'Você'),el('div',{class:'mut'},st.user.email)),
     el('div',{class:'stats'},
       el('div',{class:'stat'},el('b',{},p.points??0),el('span',{},'Pontos')),
