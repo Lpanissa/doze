@@ -65,7 +65,7 @@ nav a .dot{position:absolute;top:4px;right:calc(50% - 22px);min-width:17px;heigh
 .stat{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
 .stat b{display:block;font-size:24px;color:var(--ac)}.stat span{font-size:12px;color:var(--mut)}
 .profile{text-align:center;padding:10px 0}.profile .av{width:78px;height:78px;font-size:30px;margin:0 auto 10px}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;background:var(--bg2);border:1px solid var(--line);padding:12px 18px;border-radius:14px;z-index:9;max-width:90%;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;background:var(--bg2);border:1px solid var(--line);padding:12px 18px;border-radius:14px;z-index:60;max-width:90%;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .toast.err{border-color:var(--bad);color:var(--bad)}
 ol{padding-left:20px;color:var(--mut);font-size:14px}ol li{margin:6px 0}
 .empty{text-align:center;color:var(--mut);padding:36px 0}.empty svg{width:48px;height:48px;stroke:var(--mut);fill:none;stroke-width:1.5;display:block;margin:0 auto 10px;opacity:.7}
@@ -155,6 +155,7 @@ img{max-width:100%}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const T0=Date.now();
+(function(){try{const u=new URL(location.href);const r=u.searchParams.get('ref');if(r){localStorage.setItem('doze_ref',r.slice(0,20));u.searchParams.delete('ref');history.replaceState(null,'',u.pathname+u.search+u.hash);}}catch(_){}})();
 (function(){const t=document.getElementById('ty');if(!t)return;const parts=['D','E','V','.'];let i=0;const iv=setInterval(()=>{if(!document.getElementById('ty')){clearInterval(iv);return;}const c=parts[i++];if(c==='.'){const b=document.createElement('b');b.textContent='.';t.append(b);}else t.append(c);if(i>=parts.length)clearInterval(iv);},260);})();
 const SB_URL='https://fyxksvydxwvygjebanno.supabase.co';
 const SB_KEY='sb_publishable_HA-Ez2aumnGCLZt2rf-bsQ_MqipvpWK';
@@ -227,8 +228,9 @@ async function copyText(t,msg){try{await navigator.clipboard.writeText(t);toast(
 function svgIco(d){const s=document.createElement('span');s.style.cssText='display:inline-flex;vertical-align:-3px;margin-right:8px';s.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">'+d+'</svg>';return s;}
 const ICO_CAM='<path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9zm3 5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/>';
 const ICO_IMG='<path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm3.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM5 18h14l-4.5-6-3.2 4.2-2.3-3L5 18z"/>';
-async function inviteShare(){const text='Estou usando o Os Doze: desenvolvedores Android se ajudam a testar apps para cumprir a regra de 12 testadores por 14 dias do Google Play. É grátis, entra com o Google.';const url='https://os-doze.pages.dev';try{if(navigator.share){await navigator.share({title:'Os Doze',text,url});return;}}catch(e){if(e&&e.name==='AbortError')return;}copyText(text+' '+url,'Convite copiado! Cole no WhatsApp ou onde quiser.');}
-function inviteCard(){return el('div',{class:'card'},el('div',{class:'name'},'Convide outros desenvolvedores'),el('div',{class:'mut'},'Quanto mais gente aqui, mais rápido todo mundo fecha os 12 testadores.'),el('div',{class:'acts'},el('button',{class:'pri',onclick:inviteShare},'Convidar amigos')));}
+async function loadRef(){try{const r=await sb.rpc('doze_my_referral');if(!r.error&&r.data){st.ref=Array.isArray(r.data)?r.data[0]:r.data;if(st.tab==='me'&&!st.modal&&!st.showForm&&!st.detail)render();}}catch(_){}}
+async function inviteShare(){if(!st.ref)await loadRef();const text='Estou usando o Os Doze: desenvolvedores Android se ajudam a testar apps para cumprir a regra de 12 testadores por 14 dias do Google Play. É grátis, entra com o Google.';const url='https://os-doze.pages.dev'+(st.ref&&st.ref.code?'/?ref='+st.ref.code:'');try{if(navigator.share){await navigator.share({title:'Os Doze',text,url});return;}}catch(e){if(e&&e.name==='AbortError')return;}copyText(text+' '+url,'Convite copiado! Cole no WhatsApp ou onde quiser.');}
+function inviteCard(){const r=st.ref||{};const n=Number(r.invited||0),g=Number(r.rewarded||0);return el('div',{class:'card'},el('div',{class:'name'},'Convide amigos e ganhe pontos'),el('div',{class:'mut'},'Você ganha 3 pontos quando um amigo que entrou pelo seu link fizer o primeiro check-in. Quanto mais gente aqui, mais rápido todo mundo fecha os 12 testadores.'),n?el('div',{class:'mut',style:'margin-top:6px'},'Convidados: ',el('b',{},n),' · Já pontuaram: ',el('b',{},g),' (',el('b',{},g*3),' pontos)'):null,el('div',{class:'acts'},el('button',{class:'pri',onclick:inviteShare},'Convidar amigos')));}
 function ckLine(t){if(!t.last_checkin)return 'Nenhum check-in ainda';const today=new Date(Date.now()-3*3600e3).toISOString().slice(0,10);const d=Math.floor((new Date(today)-new Date(t.last_checkin))/86400000);
   return 'Último check-in: '+(d<=0?'hoje':d===1?'ontem':'há '+d+' dias')+' ('+t.checkins+' no total)'+(t.last_note?' — "'+t.last_note+'"':'');}
 function pointsModal(){
@@ -246,10 +248,10 @@ function pointsModal(){
         el('li',{},'O dono só consegue concluir o teste com pelo menos 14 check-ins.'),
         el('li',{},'Se você sair no meio do teste, perde os pontos já ganhos com aquele app. Isso evita abandonar o teste na metade.'),
         el('li',{},'Com cada dono, só o primeiro teste que você fizer dá pontos.'),
-        el('li',{},'Os pontos servem para publicar apps. Seu primeiro app é grátis. Para publicar os próximos, você precisa ter pelo menos 12 pontos disponíveis (os pendentes não contam), e a publicação gasta esses 12.'))):null,
+        el('li',{},'Os pontos servem para publicar apps. Seu primeiro app é grátis. Você pode cadastrar quantos apps quiser: os que não tiverem 12 pontos ficam na fila de espera até você ter pelo menos 12 pontos disponíveis (os pendentes não contam). Publicar gasta esses 12. Convidar amigos também dá pontos: 3 por amigo que fizer o primeiro check-in.'))):null,
       el('div',{class:'name',style:'margin-top:4px'},'Histórico'),
       rows===null?el('div',{class:'mut'},'Carregando…'):(rows.length?el('div',{},rows.map(r=>el('div',{class:'fbm',style:'display:flex;justify-content:space-between;gap:10px;align-items:center'},
-        el('div',{style:'min-width:0'},el('div',{},(r.reason||'').startsWith('publicou: ')?'Publicou '+r.reason.slice(10):(r.app_name||'Teste')),el('div',{class:'mut',style:'font-size:12px'},((r.reason||'').startsWith('publicou: ')?'Novo app publicado':(REASON[r.reason]||r.reason||'')+(r.reason==='check-in'?' ('+r.n+')':''))+' · '+new Date(r.created_at).toLocaleDateString('pt-BR'))),
+        el('div',{style:'min-width:0'},el('div',{},(r.reason||'').startsWith('publicou: ')?'Publicou '+r.reason.slice(10):((r.reason||'').startsWith('convite: ')?'Amigo convidado: '+r.reason.slice(9):(r.app_name||'Teste'))),el('div',{class:'mut',style:'font-size:12px'},((r.reason||'').startsWith('publicou: ')?'Novo app publicado':(r.reason||'').startsWith('convite: ')?'Pontos de convite':(REASON[r.reason]||r.reason||'')+(r.reason==='check-in'?' ('+r.n+')':''))+' · '+new Date(r.created_at).toLocaleDateString('pt-BR'))),
         el('b',{style:'flex:none;color:'+(r.pending||r.reason==='teste confirmado'?'var(--mut)':r.points>0?'var(--ac)':(r.points<0?'var(--bad)':'var(--mut)'))},r.reason==='teste confirmado'?'✓':(r.pending?'+'+r.points+' pend.':(r.points>0?'+':'')+r.points))))):el('div',{class:'mut'},'Você ainda não ganhou pontos. Conclua um teste e peça ao dono para confirmar.')),
       el('div',{class:'acts',style:'justify-content:flex-end;margin-top:12px'},el('button',{class:'sec',onclick:closeModal},'Fechar'))
     ].filter(Boolean));
@@ -322,7 +324,9 @@ async function boot(){
   if(!session){st.user=null;await minSplash();return render();}
   st.user=session.user;
   const md=session.user.user_metadata||{};
-  try{st.profile=await rpc('doze_ensure_profile',{p_name:md.full_name||md.name||'',p_avatar:md.avatar_url||null});await loadAll();}catch(e){}
+  try{st.profile=await rpc('doze_ensure_profile',{p_name:md.full_name||md.name||'',p_avatar:md.avatar_url||null});
+    try{const rf=localStorage.getItem('doze_ref');if(rf){localStorage.removeItem('doze_ref');await sb.rpc('doze_apply_referral',{p_code:rf});}}catch(_){}
+    await loadAll();loadRef();}catch(e){}
   await minSplash();
   render();
 }
@@ -424,7 +428,7 @@ function appsView(){
   const clr=el('button',{class:'clr',type:'button','aria-label':'Limpar busca',style:'display:'+(st.q?'flex':'none'),onclick:()=>{st.q='';inp.value='';clr.style.display='none';fill();inp.focus();}},'×');
   fill();
   return el('div',{class:'wrap view v-apps'},el('h2',{},'Apps para testar'),el('p',{class:'sub'},'Peça para testar. Quando o dono aceitar, o seu app é liberado.'),
-    el('div',{class:'search'},svg('search'),inp,clr),chips(()=>fill()),box,el('div',{class:'acts',style:'justify-content:center;margin-top:8px'},el('button',{class:'sec',onclick:inviteShare},'Convidar amigos para o Os Doze')));
+    el('div',{class:'search'},svg('search'),inp,clr),chips(()=>fill()),box,el('div',{class:'acts',style:'justify-content:center;margin-top:8px'},el('button',{class:'sec',onclick:inviteShare},'Convidar amigos e ganhar pontos')));
 }
 const STATUS={pendente:['Aguardando o dono do app aceitar você','w'],adicionado:['Liberado: abra o link e instale','ok'],instalado:['Testando','ok'],concluido:['Concluído','ok'],saiu:['Você saiu','']};
 function testModal(t0){
@@ -539,7 +543,7 @@ function mineView(){
   const pts=st.profile?st.profile.points:0;const nt=st.myTests.filter(t=>['adicionado','instalado','concluido'].includes(t.status)).length;
   w.append(el('details',{class:'card how'},el('summary',{class:'name'},'Como funciona'),
     el('ol',{class:'mut',style:'padding-left:18px;margin:8px 0'},
-      el('li',{},'Cadastre seu app quando quiser. O primeiro é livre; para publicar os próximos, você precisa de 12 pontos disponíveis, que são gastos na publicação.'),
+      el('li',{},'Cadastre quantos apps quiser. O primeiro é publicado de graça; os próximos ficam na fila de espera até você ter 12 pontos disponíveis, que são gastos na publicação.'),
       el('li',{},'Seu app só fica liberado depois que o dono de outro app aceitar o seu pedido de teste. Cada aceite libera um app seu.'),
       el('li',{},'Enquanto espera, você pode pedir para testar quantos apps quiser.'),
       el('li',{},'Com no mínimo 12 testadores aceitos (pode ter mais), toque em "Iniciar teste para todos". Os 14 dias começam juntos para todos.'),
@@ -562,11 +566,11 @@ function mineView(){
         const url=f.url.value.trim();if(f.name.value.trim().length<2)return toast('Informe o nome do app',true);
         if(f.desc.value.trim().length<10)return toast('Escreva a descrição do app (mínimo 10 letras)',true);
         if(!/^https:\/\/play\.google\.com\//.test(url))return toast('O link deve começar com https://play.google.com/',true);
-        e.target.disabled=true;
-        try{const urls=await uploadShots();const logo=await uploadLogo();if(ed){if((st.keep||[]).length+urls.length>8)throw new Error('No máximo 8 prints');await rpc('doze_update_app_v2',{p_mode:f.mode.value,p_app:ed.id,p_name:f.name.value.trim(),p_description:f.desc.value.trim(),p_package:f.pkg.value.trim(),p_opt_in:url,p_icon:logo||ed.icon_url||'',p_shots:(st.keep||[]).concat(urls)});}else{const cr=await rpc('doze_create_app_v3',{p_name:f.name.value.trim(),p_description:f.desc.value.trim(),p_package:f.pkg.value.trim(),p_opt_in:url,p_icon:logo,p_shots:urls});await rpc('doze_set_category',{p_app:cr.id,p_cat:f.cat.value});}
+        e.target.disabled=true;let queued=false;
+        try{const urls=await uploadShots();const logo=await uploadLogo();if(ed){if((st.keep||[]).length+urls.length>8)throw new Error('No máximo 8 prints');await rpc('doze_update_app_v2',{p_mode:f.mode.value,p_app:ed.id,p_name:f.name.value.trim(),p_description:f.desc.value.trim(),p_package:f.pkg.value.trim(),p_opt_in:url,p_icon:logo||ed.icon_url||'',p_shots:(st.keep||[]).concat(urls)});}else{const cr=await rpc('doze_create_app_v4',{p_name:f.name.value.trim(),p_description:f.desc.value.trim(),p_package:f.pkg.value.trim(),p_opt_in:url,p_icon:logo,p_shots:urls});await rpc('doze_set_category',{p_app:cr.id,p_cat:f.cat.value});queued=cr.status==='fila';}
           if(ed)await rpc('doze_set_category',{p_app:ed.id,p_cat:f.cat.value});
           st.shots=[];st.logo=null;st.keep=null;
-          st.showForm=false;replaceNav();await loadAll();render();toast(ed?'App atualizado!':'App cadastrado! Ele aparece para os outros quando você entrar no teste de um app.');}catch(err){if(err&&err.message&&!err.code)toast(err.message,true);e.target.disabled=false;}
+          st.showForm=false;replaceNav();await loadAll();render();toast(ed?'App atualizado!':(queued?'App cadastrado e na fila de espera. Quando você tiver 12 pontos, é só publicar.':'App cadastrado! Ele aparece para os outros quando você entrar no teste de um app.'),false);}catch(err){if(err&&err.message&&!err.code)toast(err.message,true);e.target.disabled=false;}
       }},ed?'Salvar alterações':'Cadastrar app');
     const delBtn=ed?el('button',{class:'sec',style:'margin-top:8px;width:100%;color:var(--bad)',onclick:()=>openModal('Excluir este app? Ele some da lista e os pedidos dos testadores são apagados. Não dá para desfazer.',async()=>{await rpc('doze_delete_app',{p_app:ed.id});st.showForm=false;replaceNav();await loadAll();render();toast('App excluído');},'Excluir')},'Excluir este app'):null;
     f.cat.value=(ed&&ed.category)||'Outros';
@@ -575,6 +579,14 @@ function mineView(){
   }
   if(!st.myApps.length&&!st.showForm)w.append(empty('mine','Você ainda não publicou nenhum app.'));
   st.myApps.filter(a=>a.status!=='encerrado').forEach(a=>{
+    if(a.status==='fila'){const have=st.profile?st.profile.points:0,can=have>=12;
+      w.append(el('div',{class:'card',style:'position:relative'},el('button',{class:'pen','aria-label':'Editar app',onclick:()=>{st.edit=a.id;st.keep=null;st.shots=[];st.logo=null;st.showForm=true;pushNav();render();window.scrollTo(0,0);}},penSvg()),
+        el('div',{class:'row'},icon(a.icon_url,a.name),el('div',{class:'grow'},el('div',{class:'name',style:'padding-right:40px'},a.name),el('span',{class:'tag w'},'Na fila de espera'),
+          el('div',{class:'mut',style:'margin-top:6px'},can?'Você já tem 12 pontos: pode publicar agora. A publicação gasta 12 pontos.':'Para publicar você precisa de 12 pontos. Você tem '+have+' (faltam '+(12-have)+'). Ganhe pontos testando apps ou convidando amigos.'),
+          el('div',{class:'acts'},el('button',{class:'pri',disabled:!can,onclick:async e=>{e.target.disabled=true;try{await rpc('doze_publish_app',{p_app:a.id});await loadAll();render();toast('App publicado!');}catch(_){e.target.disabled=false;}}},'Publicar (12 pontos)'),
+            can?null:el('button',{class:'sec sm',onclick:()=>goTab('apps')},'Ganhar pontos'),
+            el('button',{class:'sec sm',style:'color:var(--bad)',onclick:()=>openModal('Excluir este app da fila de espera? Não dá para desfazer.',async()=>{await rpc('doze_delete_app',{p_app:a.id});await loadAll();render();toast('App excluído');},'Excluir')},'Excluir'))))));
+      return;}
     const open=st.open===a.id,ts=st.testers[a.id]||[];
     w.append(el('div',{class:'card',style:'position:relative'},el('button',{class:'pen','aria-label':'Editar app',onclick:()=>{st.edit=a.id;st.keep=null;st.shots=[];st.logo=null;st.showForm=true;pushNav();render();window.scrollTo(0,0);}},penSvg()),el('div',{class:'row'},el('div',{style:'cursor:pointer',onclick:()=>openDetail(a.id)},icon(a.icon_url,a.name)),el('div',{class:'grow'},
       el('div',{class:'name',style:'cursor:pointer;padding-right:40px',onclick:()=>openDetail(a.id)},a.name),a.liberado?el('span',{class:'tag ok'},'Visível para testadores'):el('span',{class:'tag w'},'Aguardando você testar um app'),ntBadges(a.id,['pedido','comentario_dono'],()=>openNodeModal(()=>testersModal(a))),(a.start_mode==='livre'?null:bar(Number(a.accepted),12)),
