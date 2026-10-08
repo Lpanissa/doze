@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Os Doze — troque testes de apps</title>
+<meta name="description" content="Teste o app de outro desenvolvedor e receba testadores no seu. Login só com Google.">
+<meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f7fb" media="(prefers-color-scheme: light)">
+<meta name="color-scheme" content="dark light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{color-scheme:dark light;--bg:#0b1120;--bg2:#0b1220;--card:#162033;--card2:#1b2740;--line:#2a3a56;--tx:#f1f5f9;--mut:#8ea0bd;--ac:#34d399;--ac2:#10b981;--warn:#fbbf24;--bad:#f87171;--hdr:rgba(11,17,32,.82);--navbg:rgba(22,32,51,.92);--glow:#12304a;--sh:rgba(0,0,0,.25);--grad:#2f7a69}
+@media(prefers-color-scheme:light){:root{--bg:#f4f7fb;--bg2:#eaf0f7;--card:#ffffff;--card2:#f6f9fc;--line:#d5deea;--tx:#0f172a;--mut:#5b6b85;--ac:#047857;--ac2:#059669;--warn:#b45309;--bad:#dc2626;--hdr:rgba(244,247,251,.85);--navbg:rgba(255,255,255,.92);--glow:#cfeee4;--sh:rgba(15,23,42,.08)}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0}.ovl{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20;display:grid;place-items:center;padding:20px}.mdl{background:var(--card2);border:1px solid var(--line);border-radius:18px;padding:18px;max-width:420px;width:100%}
+body{background:radial-gradient(1200px 500px at 50% -150px,var(--glow) 0%,transparent 70%),var(--bg);background-attachment:fixed;color:var(--tx);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh;padding-bottom:110px}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;background:var(--hdr);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:5;padding-top:env(safe-area-inset-top)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
+.logo .mk{width:30px;height:30px;border-radius:9px;background:#0f172a;color:#34d399;border:1px solid #1e293b;display:grid;place-items:center;font-size:14px;font-weight:900}
+.logo b{color:var(--ac)}
+.logo .dv{font-size:10px;font-weight:800;letter-spacing:.3px;color:#34d399;align-self:flex-end;margin:0 0 4px -4px;opacity:.9}
+.hr{display:flex;align-items:center;gap:10px}
+.pts{background:linear-gradient(135deg,rgba(52,211,153,.18),rgba(34,211,238,.12));border:1px solid rgba(52,211,153,.35);border-radius:999px;padding:6px 12px;font-size:14px;font-weight:700;display:flex;gap:6px;align-items:center}.pts b{color:var(--ac)}
+.av{width:34px;height:34px;border-radius:50%;background:var(--grad);color:#eefbf6;display:grid;place-items:center;font-weight:800;overflow:hidden;flex:none}.av img{width:100%;height:100%;object-fit:cover}
+h2{font-size:24px;margin:18px 0 4px;letter-spacing:-.4px}p.mut,.mut{color:var(--mut);font-size:14px}
+.sub{color:var(--mut);margin:0 0 14px;font-size:14px}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:14px;margin:12px 0;box-shadow:0 6px 18px var(--sh)}
+.row{display:flex;gap:12px;align-items:flex-start}.row>.grow{flex:1;min-width:0}
+.ico{width:54px;height:54px;border-radius:15px;background:var(--grad);flex:none;display:grid;place-items:center;font-weight:900;font-size:22px;color:#eefbf6;overflow:hidden}
+.ico img{width:100%;height:100%;object-fit:cover}
+.name{font-weight:700;font-size:17px}.desc{color:var(--mut);font-size:14px;margin:4px 0 8px;word-break:break-word}
+.bar{height:8px;border-radius:8px;background:var(--bg2);overflow:hidden;margin:8px 0 4px}.bar i{display:block;height:100%;background:var(--grad);border-radius:8px}
+button,.btn{font:inherit;border:0;border-radius:12px;padding:11px 16px;background:var(--ac2);color:#fff;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;transition:transform .12s,opacity .12s}
+button:active,.btn:active{transform:scale(.96)}
+button.sec,.btn.sec{background:transparent;border:1px solid var(--line);color:var(--tx)}
+button.pri,.btn.pri{background:var(--grad);color:#eefbf6}
+button:disabled{opacity:.5;cursor:not-allowed}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+input,textarea,select{width:100%;font:inherit;background:var(--bg2);color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:12px;margin:4px 0 10px;outline:none}
+input:focus,textarea:focus{border-color:var(--ac)}
+.search{position:relative}.search svg{position:absolute;left:14px;top:16px;width:20px;height:20px;stroke:var(--mut);fill:none;stroke-width:2;stroke-linecap:round}.search .clr{position:absolute;right:8px;top:8px;width:32px;height:32px;border-radius:50%;border:0;background:var(--line);color:var(--tx);font-size:20px;line-height:1;align-items:center;justify-content:center;padding:0;cursor:pointer}.search input{padding-left:42px;padding-right:46px;border-radius:999px;background:var(--card)}
+label{font-size:14px;color:var(--mut)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:0 12px calc(10px + env(safe-area-inset-bottom));pointer-events:none}
+nav .bar2{pointer-events:auto;max-width:520px;margin:0 auto;display:flex;background:var(--navbg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:26px;padding:6px;box-shadow:0 10px 30px var(--sh)}
+nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px;color:var(--mut);text-decoration:none;font-size:11px;font-weight:600;border-radius:20px;position:relative;transition:all .18s}
+nav a svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+nav a.on{color:#eefbf6;background:var(--grad)}
+nav a .dot{position:absolute;top:4px;right:calc(50% - 22px);min-width:17px;height:17px;border-radius:9px;background:var(--bad);color:#fff;font-size:10px;display:grid;place-items:center;padding:0 4px}
+.tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--mut);font-weight:600}
+.tag.ok{color:var(--ac);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.08)}.tag.w{color:var(--warn);border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.08)}
+.hero{text-align:center;padding:70px 16px 24px}
+.hero .big{width:96px;height:96px;margin:0 auto 18px;border-radius:24px;background:#0f172a;color:#34d399;display:grid;place-items:center;font-size:42px;font-weight:900;border:1px solid #1e293b}
+.hero h1{font-size:40px;margin:0 0 8px;letter-spacing:-1px}.hero p{color:var(--mut);margin:0 auto 24px;max-width:420px}
+.steps{display:grid;gap:10px;text-align:left;max-width:420px;margin:0 auto 26px}
+.steps div{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;color:var(--tx);font-size:14px}
+.steps b{width:28px;height:28px;border-radius:50%;background:var(--grad);color:#eefbf6;display:grid;place-items:center;flex:none}
+.gbtn{background:#fff;color:#3c4043;display:inline-flex;gap:12px;align-items:center;padding:12px 22px 12px 14px;font-size:16px;font-weight:600;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.stat{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+.stat b{display:block;font-size:24px;color:var(--ac)}.stat span{font-size:12px;color:var(--mut)}
+.profile{text-align:center;padding:10px 0}.profile .av{width:78px;height:78px;font-size:30px;margin:0 auto 10px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;background:var(--bg2);border:1px solid var(--line);padding:12px 18px;border-radius:14px;z-index:9;max-width:90%;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.toast.err{border-color:var(--bad);color:var(--bad)}
+ol{padding-left:20px;color:var(--mut);font-size:14px}ol li{margin:6px 0}
+.empty{text-align:center;color:var(--mut);padding:36px 0}.empty svg{width:48px;height:48px;stroke:var(--mut);fill:none;stroke-width:1.5;display:block;margin:0 auto 10px;opacity:.7}
+.thumbs{display:flex;gap:10px;overflow-x:auto;padding:4px 0 10px;scroll-snap-type:x mandatory}.thumbs img{height:260px;border-radius:14px;border:1px solid var(--line);scroll-snap-align:start;flex:none;background:var(--bg2)}.pv{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}.pv div{position:relative}.pv img{width:70px;height:110px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}.pv b{position:absolute;top:-6px;right:-6px;background:var(--bad);color:#fff;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;font-size:12px;cursor:pointer}.back{background:transparent;color:var(--ac);padding:8px 0;font-weight:700}.card.tap{cursor:pointer}
+.splash{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}.splash .big{width:96px;height:96px;border-radius:24px;background:#0f172a;color:#34d399;display:grid;place-items:center;font-size:42px;font-weight:900;border:1px solid #1e293b}.splash .sn{font-size:26px;font-weight:800;letter-spacing:-.5px}.splash .sn{font-size:30px;letter-spacing:4px;min-height:40px}.splash .sn b{color:var(--ac)}.cur{display:inline-block;width:3px;height:28px;background:var(--ac);margin-left:4px;vertical-align:-4px;animation:blink .7s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+.ad{position:fixed;left:0;right:0;bottom:calc(86px + env(safe-area-inset-bottom));z-index:5;max-width:520px;margin:0 auto;padding:0 12px}.ad .adl{display:block;font-size:10px;color:var(--mut);text-align:center}
+.sw{flex:none;width:50px;height:30px;border-radius:999px;border:0;padding:0;background:var(--line);position:relative;cursor:pointer;transition:background .2s}.sw .kn{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}.sw.on{background:var(--ac)}.sw.on .kn{transform:translateX(20px)}.sw:disabled{opacity:.6}
+.tacts{flex-wrap:wrap}.tacts .sec{flex:1 1 0;min-width:0}.tacts .pri{flex:1 1 100%;order:-1}
+.view{animation:fade .22s ease}@keyframes fade{from{opacity:0}to{opacity:1}}
+.fbm{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:8px 0}.fbm.me{border-color:var(--ac)}.fbl{margin:6px 0}
+.how summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}.how summary::-webkit-details-marker{display:none}.how summary::after{content:'';width:9px;height:9px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(45deg);transition:transform .2s;margin-right:4px}.how[open] summary::after{transform:rotate(-135deg)}
+.fab{position:fixed;right:16px;bottom:calc(98px + env(safe-area-inset-bottom));z-index:7;border:0;border-radius:999px;padding:14px 20px;font-size:16px;font-weight:800;color:#eefbf6;background:var(--grad);box-shadow:0 8px 22px rgba(0,0,0,.4);cursor:pointer}
+.pen{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--mut);display:grid;place-items:center;padding:0;cursor:pointer}.sec.sm{padding:6px 12px;font-size:13px;border-radius:12px;min-height:0}
+.fmc{max-height:90vh;max-width:460px;display:flex;flex-direction:column;padding:0;overflow:hidden}.fscroll{overflow-y:auto;padding:18px;flex:1}.ffoot{padding:12px 18px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card2)}.ffoot .pri{width:100%}.fcont label{display:block;font-size:13px;color:var(--mut);margin-top:4px}.lg{position:relative;width:84px;height:84px;border-radius:20px;border:1px dashed var(--line);background:var(--bg2);color:var(--mut);padding:0;display:grid;place-items:center;cursor:pointer;margin-top:4px}.lg img{width:100%;height:100%;object-fit:cover;border-radius:19px}.lgpen{position:absolute;right:-6px;bottom:-6px;width:28px;height:28px;border-radius:50%;background:var(--ac);color:#05261b;display:grid;place-items:center}.bub{position:absolute;left:0;top:94px;z-index:30;display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px;box-shadow:0 10px 26px var(--sh);min-width:140px}.bub button{border:0;background:var(--bg2);color:var(--tx);border-radius:12px;padding:10px 12px;font:inherit;text-align:left;cursor:pointer}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{flex:none;border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}.chip.on{background:var(--grad);color:#eefbf6;border-color:transparent;font-weight:700}
+.xbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--mut);font-size:22px;line-height:1;padding:0;cursor:pointer;display:grid;place-items:center}
+.thumbs-sm img{height:150px}
+.pri.sm{padding:8px 18px;font-size:14px;border-radius:12px}
+</style>
+</head>
+<body>
+<div id="app"><div class="splash"><div class="big">12</div><div class="sn"><span id="ty"></span><i class="cur"></i></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const T0=Date.now();
+(function(){const t=document.getElementById('ty');if(!t)return;const parts=['D','E','V','.'];let i=0;const iv=setInterval(()=>{if(!document.getElementById('ty')){clearInterval(iv);return;}const c=parts[i++];if(c==='.'){const b=document.createElement('b');b.textContent='.';t.append(b);}else t.append(c);if(i>=parts.length)clearInterval(iv);},260);})();
+const SB_URL='https://fyxksvydxwvygjebanno.supabase.co';
+const SB_KEY='sb_publishable_HA-Ez2aumnGCLZt2rf-bsQ_MqipvpWK';
+const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const $=s=>document.querySelector(s);
+function gsLine(id){const g=(st.gs||{})[id];if(!g)return null;
+  const open_=g.start_mode==='livre'||g.started_at;
+  if(!open_)return el('div',{class:'mut'},'Grupo: ',el('b',{},g.participants),' participando · o link e os check-ins começam quando o grupo fechar');
+  const falta=Math.max(0,(g.active??g.participants)-g.done_today);
+  return el('div',{class:'mut'},'Grupo: ',el('b',{},g.participants),' participando · ',el('b',{},g.done_today),' já fizeram o check-in hoje · ',el('b',{},falta),' faltam');}
+const st={detail:null,shots:[],ci:{},user:null,profile:null,tab:'apps',apps:[],myApps:[],myTests:[],testers:{},open:null,q:'',showForm:false};
+
+function el(tag,attrs={},...kids){const e=document.createElement(tag);
+  for(const[k,v]of Object.entries(attrs||{})){
+    if(k==='class')e.className=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);
+    else if(v!==false&&v!=null)e.setAttribute(k,v===true?'':v);}
+  for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(String(c)));}
+  return e;}
+function toast(msg,err){const t=el('div',{class:'toast'+(err?' err':'')},msg);document.body.append(t);setTimeout(()=>t.remove(),3500);}
+async function rpc(fn,args){const{data,error}=await sb.rpc(fn,args||{});if(error){toast(error.message,true);throw error;}return data;}
+function icon(url,name){const d=el('div',{class:'ico'});
+  if(url&&/^https:\/\//.test(url)){const i=el('img',{src:url,alt:'',referrerpolicy:'no-referrer'});i.onerror=()=>{d.textContent=(name||'?')[0].toUpperCase()};d.append(i);}
+  else d.textContent=(name||'?')[0].toUpperCase();return d;}
+
+const IC={
+ apps:'<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+ tests:'<path d="M9 3h6M10 3v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 9V3"/><path d="M7.5 15h9"/>',
+ mine:'<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>',
+ me:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+ box:'<path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/>'};
+function svg(k){const w=document.createElement('span');w.style.display='contents';w.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+IC[k]+'</svg>';return w.firstChild;}
+function initial(n){return (n||'?').trim()[0]?.toUpperCase()||'?';}
+function avatar(){const p=st.profile||{};const d=el('div',{class:'av'});
+  const u=p.avatar_url||(st.user&&st.user.user_metadata&&st.user.user_metadata.avatar_url);
+  if(u&&/^https:\/\//.test(u)){const i=el('img',{src:u,alt:'',referrerpolicy:'no-referrer'});i.onerror=()=>{d.textContent=initial(p.name||st.user.email)};d.append(i);}
+  else d.textContent=initial(p.name||(st.user&&st.user.email));return d;}
+function empty(k,txt){const d=el('div',{class:'empty'});d.append(svg(k),txt);return d;}
+function bar(n,total){return el('div',{class:'bar'},el('i',{style:'width:'+Math.min(100,Math.round(n/total*100))+'%'}));}
+
+async function refreshNotifs(){try{const r=await sb.rpc('doze_notifs');if(r.data){st.nt=r.data;const nav=document.querySelector('nav');if(nav&&!st.modal&&!st.showForm&&!document.querySelector('.fbl')){const ph=document.activeElement;if(!ph||!/INPUT|TEXTAREA|SELECT/.test(ph.tagName))render();}}}catch(_){}}
+function ntFor(appId,kinds){return (st.nt||[]).filter(x=>x.app_id===appId&&kinds.includes(x.kind)).reduce((n,x)=>n+Number(x.n),0);}
+function ntBadges(appId,kinds,onP){const p=ntFor(appId,['pedido']),c=ntFor(appId,['comentario_dono','comentario_teste']);const out=[];if(ntFor(appId,['aceito']))out.push(el('span',{class:'tag ok'},'Você foi aceito'));if(ntFor(appId,['lembrete']))out.push(el('span',{class:'tag w'},'Lembrete do dono: faça o check-in'));if(kinds.includes('pedido')&&p)out.push(el('span',onP?{class:'tag w',style:'cursor:pointer',onclick:e=>{e.stopPropagation();onP();}}:{class:'tag w'},p+(p>1?' pedidos novos':' pedido novo')));if(c)out.push(el('span',{class:'tag w'},c+(c>1?' comentários novos':' comentário novo')));return out;}
+async function loadAll(){
+  const [a,m,t]=await Promise.all([rpc('doze_list_apps_v5'),rpc('doze_my_apps_v5'),rpc('doze_my_tests_v3')]);
+  st.apps=a||[];st.myApps=m||[];st.myTests=t||[];
+  try{const r=await sb.rpc('doze_notifs');if(r.data)st.nt=r.data;}catch(_){}
+  const ids=[...new Set([...st.myApps.filter(x=>x.status==='ativo').map(x=>x.id),...st.myTests.filter(x=>['adicionado','instalado','concluido'].includes(x.status)).map(x=>x.app_id)])];
+  st.gs={};await Promise.all(ids.map(async id=>{try{const r=await rpc('doze_group_stats_v3',{p_app:id});if(r&&r[0])st.gs[id]=r[0];}catch(_){}}));
+  const{data}=await sb.from('doze_profiles').select('*').eq('id',st.user.id).single();if(data)st.profile=data;
+}
+
+/* ---- navegação com histórico (botão voltar do celular, refresh mantém a página) ---- */
+let depth=0,lastGuard=0,pending=null;
+const TABS=['apps','tests','mine','me'];
+function snap(){return {tab:st.tab,detail:st.detail,form:!!st.showForm,modal:!!st.modal,n:depth};}
+function hashOf(){return '#'+(st.detail?'app/'+st.detail:st.tab);}
+function pushNav(){depth++;history.pushState(snap(),'',hashOf());}
+function replaceNav(){history.replaceState(snap(),'',hashOf());}
+function parseHash(){const h=location.hash.replace(/^#\/?/,'');
+  if(h.startsWith('app/')){st.tab='apps';st.detail=h.slice(4);}
+  else if(TABS.includes(h)){st.tab=h;st.detail=null;}
+  st.showForm=false;st.modal=null;}
+function goTab(k){if(st.tab===k&&!st.detail&&!st.showForm)return;st.tab=k;st.detail=null;st.showForm=false;st.modal=null;pushNav();render();window.scrollTo(0,0);}
+function openDetail(id){st.tab='apps';st.detail=id;st.showForm=false;pushNav();render();window.scrollTo(0,0);}
+function goBack(){if(depth>0)history.back();else{st.detail=null;st.showForm=false;st.modal=null;replaceNav();render();}}
+function openModal(text,yes,ok){st.modal={text,yes,ok};pushNav();render();}
+function openNodeModal(fn){st.modal={node:fn};pushNav();render();}
+async function copyText(t,msg){try{await navigator.clipboard.writeText(t);toast(msg);}catch(_){toast('Não foi possível copiar',true);}}
+function svgIco(d){const s=document.createElement('span');s.style.cssText='display:inline-flex;vertical-align:-3px;margin-right:8px';s.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">'+d+'</svg>';return s;}
+const ICO_CAM='<path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9zm3 5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/>';
+const ICO_IMG='<path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm3.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM5 18h14l-4.5-6-3.2 4.2-2.3-3L5 18z"/>';
+async function inviteShare(){const text='Estou usando o Os Doze: desenvolvedores Android se ajudam a testar apps para cumprir a regra de 12 testadores por 14 dias do Google Play. É grátis, entra com o Google.';const url='https://os-doze.pages.dev';try{if(navigator.share){await navigator.share({title:'Os Doze',text,url});return;}}catch(e){if(e&&e.name==='AbortError')return;}copyText(text+' '+url,'Convite copiado! Cole no WhatsApp ou onde quiser.');}
+function inviteCard(){return el('div',{class:'card'},el('div',{class:'name'},'Convide outros desenvolvedores'),el('div',{class:'mut'},'Quanto mais gente aqui, mais rápido todo mundo fecha os 12 testadores.'),el('div',{class:'acts'},el('button',{class:'pri',onclick:inviteShare},'Convidar amigos')));}
+function ckLine(t){if(!t.last_checkin)return 'Nenhum check-in ainda';const today=new Date(Date.now()-3*3600e3).toISOString().slice(0,10);const d=Math.floor((new Date(today)-new Date(t.last_checkin))/86400000);
+  return 'Último check-in: '+(d<=0?'hoje':d===1?'ontem':'há '+d+' dias')+' ('+t.checkins+' no total)'+(t.last_note?' — "'+t.last_note+'"':'');}
+function pointsModal(){
+  const root=el('div',{});let rows=null,info=false;
+  const REASON={'teste confirmado':'Pontos liberados pelo dono','limite por dono':'Sem pontos: você já pontuou com este dono','check-in':'Check-ins','saiu do teste':'Saiu do teste: pontos perdidos','removido pelo dono':'Removido pelo dono: pontos perdidos'};
+  const infoBtn=()=>el('button',{type:'button','aria-label':'Como funciona a pontuação','aria-expanded':String(info),onclick:()=>{info=!info;draw();},style:'width:26px;height:26px;border-radius:50%;border:1.5px solid var(--mut);background:'+(info?'var(--bg2)':'transparent')+';color:var(--mut);font:italic 700 14px Georgia,serif;display:grid;place-items:center;padding:0;cursor:pointer;flex:none'},'i');
+  function draw(){
+    const pts=st.profile?st.profile.points:0;const pen=st.profile?(st.profile.points_pending||0):0;
+    root.replaceChildren(...[
+      el('div',{style:'display:flex;align-items:center;gap:10px;margin-bottom:6px'},el('div',{class:'name',style:'flex:1'},'Meus pontos'),infoBtn()),
+      el('div',{style:'display:flex;align-items:baseline;gap:8px;margin-bottom:10px'},el('b',{style:'font-size:34px;color:var(--ac)'},'★ '+pts),el('span',{class:'mut'},pts===1?'disponível':'disponíveis'),pen>0?el('span',{style:'margin-left:auto;font-weight:700;color:var(--mut)'},'+'+pen+' pendente'+(pen===1?'':'s')):null),
+      info?el('div',{class:'card',style:'margin:0 0 12px'},el('div',{class:'name'},'Como funciona a pontuação'),el('ul',{style:'margin:8px 0 0;padding-left:18px;line-height:1.5'},
+        el('li',{},'Cada check-in diário no teste de um app vale 1 ponto, na hora e sem limite. Mas o ponto fica pendente até o dono concluir o teste; só então ele vira disponível.'),
+        el('li',{},'O teste dura até o dono concluir e pode passar de 14 dias, dependendo dos participantes. Por isso é importante testar e fazer o check-in todos os dias.'),
+        el('li',{},'O dono só consegue concluir o teste com pelo menos 14 check-ins.'),
+        el('li',{},'Se você sair no meio do teste, perde os pontos já ganhos com aquele app. Isso evita abandonar o teste na metade.'),
+        el('li',{},'Com cada dono, só o primeiro teste que você fizer dá pontos.'),
+        el('li',{},'Os pontos servem para publicar apps. Seu primeiro app é grátis. Para publicar os próximos, você precisa ter pelo menos 12 pontos disponíveis (os pendentes não contam), e a publicação gasta esses 12.'))):null,
+      el('div',{class:'name',style:'margin-top:4px'},'Histórico'),
+      rows===null?el('div',{class:'mut'},'Carregando…'):(rows.length?el('div',{},rows.map(r=>el('div',{class:'fbm',style:'display:flex;justify-content:space-between;gap:10px;align-items:center'},
+        el('div',{style:'min-width:0'},el('div',{},(r.reason||'').startsWith('publicou: ')?'Publicou '+r.reason.slice(10):(r.app_name||'Teste')),el('div',{class:'mut',style:'font-size:12px'},((r.reason||'').startsWith('publicou: ')?'Novo app publicado':(REASON[r.reason]||r.reason||'')+(r.reason==='check-in'?' ('+r.n+')':''))+' · '+new Date(r.created_at).toLocaleDateString('pt-BR'))),
+        el('b',{style:'flex:none;color:'+(r.pending||r.reason==='teste confirmado'?'var(--mut)':r.points>0?'var(--ac)':(r.points<0?'var(--bad)':'var(--mut)'))},r.reason==='teste confirmado'?'✓':(r.pending?'+'+r.points+' pend.':(r.points>0?'+':'')+r.points))))):el('div',{class:'mut'},'Você ainda não ganhou pontos. Conclua um teste e peça ao dono para confirmar.')),
+      el('div',{class:'acts',style:'justify-content:flex-end;margin-top:12px'},el('button',{class:'sec',onclick:closeModal},'Fechar'))
+    ].filter(Boolean));
+  }
+  rpc('doze_my_points_v3').then(r=>{rows=r||[];draw();}).catch(()=>{rows=[];draw();});
+  draw();return root;
+}
+function testersModal(a){
+  const root=el('div',{});let list=[],menu=null,view='list',prof=null,blocked=[];
+  const load=async()=>{try{list=await rpc('doze_app_testers_v5',{p_app:a.id})||[];}catch(_){list=[];}try{blocked=await rpc('doze_blocked_list',{p_app:a.id})||[];}catch(_){blocked=[];}list=list.map((x,i)=>[x,i]).sort((p,q)=>((p[0].email?1:0)-(q[0].email?1:0))||(p[1]-q[1])).map(x=>x[0]);draw();};
+  const refreshAll=async()=>{await load();await loadAll();};
+  const accept=async t=>{try{await rpc('doze_mark_added',{p_test:t.test_id});}catch(_){return;}await load();const em=(list.find(x=>x.test_id===t.test_id)||{}).email;if(em)copyText(em,'Aceito! E-mail copiado: cole no Play Console.');loadAll();};
+  const block=t=>{openModal('Bloquear '+(t.tester_name||'este testador')+'? Ele sai do teste e não poderá mais pedir para participar deste app.',async()=>{await rpc('doze_block_tester',{p_test:t.test_id});await loadAll();openNodeModal(()=>testersModal(a));toast('Testador bloqueado');},'Bloquear');};
+  const avatar_=t=>t.avatar_url?el('img',{src:t.avatar_url,alt:'',referrerpolicy:'no-referrer',style:'width:42px;height:42px;border-radius:50%;object-fit:cover;flex:none'}):el('div',{style:'width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--bg2);font-weight:800'},(t.tester_name||'?').slice(0,1).toUpperCase());
+  const showProfile=async t=>{try{const r=await rpc('doze_tester_profile',{p_test:t.test_id});let tr={};try{tr=((await rpc('doze_tester_trust',{p_test:t.test_id}))||[])[0]||{};}catch(_){}prof={t,p:(r||[])[0]||{},tr,blk:!!t.blk};view='profile';draw();}catch(_){}};
+  const todayStr=()=>new Date(Date.now()-3*3600e3).toISOString().slice(0,10);
+  const nudgeBtn=t=>{if(!(t.status==='instalado'||t.status==='adicionado'))return null;if(t.last_checkin&&String(t.last_checkin).slice(0,10)===todayStr())return null;
+    return t.nudged?el('span',{class:'mut',style:'font-size:12px;text-align:center'},'Lembrado hoje'):el('button',{class:'sec sm',onclick:async()=>{try{await rpc('doze_nudge_tester',{p_test:t.test_id});toast('Lembrete enviado');await load();}catch(_){}}},'Lembrar');};
+  const put=(...k)=>root.replaceChildren(...k.filter(Boolean));
+  function draw(){
+    if(view==='profile'){const p=prof.p,t=prof.t;
+      put(el('div',{style:'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px'},el('div',{class:'name'},'Perfil do testador'),prof.blk?el('button',{type:'button',class:'tag',style:'border:0;cursor:pointer;color:var(--bad);font:inherit;font-size:12px;font-weight:700',onclick:()=>openModal('Desbloquear '+(t.tester_name||'este testador')+'? Ele poderá se inscrever novamente neste app.',async()=>{await rpc('doze_unblock_tester',{p_test:t.test_id});await loadAll();openNodeModal(()=>testersModal(a));toast('Testador desbloqueado');},'Desbloquear')},'Bloqueado'):null),
+        el('div',{style:'display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center'},(p.avatar_url?el('img',{src:p.avatar_url,alt:'',referrerpolicy:'no-referrer',style:'width:84px;height:84px;border-radius:50%;object-fit:cover'}):avatar_(t)),el('div',{class:'name',style:'font-size:20px'},p.name||t.tester_name||'Testador'),
+          el('div',{class:'mut'},STATUS[p.status]?STATUS[p.status][0]:p.status)),
+        el('div',{class:'stats',style:'margin-top:14px'},el('div',{class:'stat'},el('b',{},p.points??0),el('span',{},'Pontos')),el('div',{class:'stat'},el('b',{},p.tests_done??0),el('span',{},'Testes concluídos')),el('div',{class:'stat'},el('b',{},p.checkins??0),el('span',{},'Check-ins neste app'))),
+        el('div',{class:'mut',style:'margin-top:10px;text-align:center'},'Já saiu de ',el('b',{},(prof.tr&&prof.tr.left_count)||0),' teste(s)',((prof.tr&&prof.tr.reports)>0)?el('span',{style:'color:var(--bad);font-weight:700'},' · denunciado por '+prof.tr.reports+' dono(s)'):null),
+        el('div',{class:'acts',style:'justify-content:flex-end;margin-top:14px'},el('button',{class:'sec',onclick:()=>{view='list';draw();}},'Voltar')));return;}
+    const emails=list.map(t=>t.email).filter(Boolean);
+    put(el('div',{class:'name',style:'margin-bottom:10px'},'Testadores de '+a.name),
+      list.length?el('div',{},
+        emails.length?el('div',{class:'acts',style:'margin:0 0 6px'},el('button',{class:'pri',onclick:()=>copyText(emails.join(', '),'E-mails copiados ('+emails.length+')')},'Copiar todos os e-mails ('+emails.length+')')):null,
+        list.map(t=>{const acc=!!t.email;
+          return el('div',{style:'margin-top:12px'},
+            el('div',{class:'row',style:'align-items:center;gap:10px'},
+              el('div',{style:'display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer',onclick:()=>{menu=menu===t.test_id?null:t.test_id;draw();}},avatar_(t),
+                el('div',{style:'min-width:0'},el('div',{class:'name'},t.tester_name||'Testador'),acc?el('div',{class:'mut',style:'overflow:hidden;text-overflow:ellipsis'},t.email):el('div',{class:'mut',style:'font-size:12px'},'Pedido novo · e-mail aparece depois de aceitar'),acc?el('div',{class:'mut',style:'font-size:12px'},STATUS[t.status]?STATUS[t.status][0]:t.status):null,
+                (acc&&t.status!=='adicionado')?el('div',{class:'mut',style:'font-size:12px;margin-top:2px'},ckLine(t)):null)),
+              acc?el('div',{style:'display:flex;flex-direction:column;gap:6px;flex:none'},el('button',{class:'sec sm',onclick:()=>copyText(t.email,'E-mail copiado')},'Copiar'),nudgeBtn(t)):el('div',{style:'display:flex;flex-direction:column;gap:6px;flex:none'},el('button',{class:'pri sm',style:'padding:8px 16px',disabled:!a.liberado,onclick:()=>accept(t)},'Aceitar'),el('button',{class:'sec sm',onclick:()=>openModal('Recusar o pedido de '+(t.tester_name||'este testador')+'?',async()=>{await rpc('doze_remove_tester',{p_test:t.test_id});await loadAll();openNodeModal(()=>testersModal(a));},'Recusar')},'Recusar'))),
+            (!acc&&!a.liberado)?el('div',{class:'mut',style:'font-size:12px;margin-top:4px'},'Você só pode aceitar depois que o dono de outro app aceitar o seu pedido.'):null,
+            menu===t.test_id?el('div',{class:'bub',style:'position:static;margin-top:8px;width:fit-content;min-width:160px'},el('button',{type:'button',onclick:()=>showProfile(t)},'Ver perfil'),el('button',{type:'button',onclick:()=>openModal('Denunciar '+(t.tester_name||'este testador')+' por perfil falso ou por fazer check-in sem testar? Os outros donos de app verão que ele já foi denunciado.',async()=>{await rpc('doze_report_tester',{p_test:t.test_id});openNodeModal(()=>testersModal(a));toast('Denúncia registrada');},'Denunciar')},'Denunciar'),el('button',{type:'button',style:'color:var(--bad)',onclick:()=>block(t)},'Bloquear')):null);})):el('div',{class:'empty'},'Ninguém entrou ainda.'),
+      blocked.length?el('div',{style:'margin-top:16px'},el('div',{class:'name'},'Bloqueados ('+blocked.length+')'),blocked.map(b=>el('div',{style:'display:flex;align-items:center;gap:10px;margin-top:8px;cursor:pointer',onclick:()=>showProfile({test_id:b.test_id,tester_name:b.tester_name,avatar_url:b.avatar_url,blk:true})},avatar_(b),el('div',{class:'name'},b.tester_name||'Testador'),el('span',{class:'tag',style:'margin-left:auto;color:var(--bad)'},'Bloqueado')))):null,
+      el('div',{class:'acts',style:'justify-content:flex-end;margin-top:14px'},el('button',{class:'sec',onclick:closeModal},'Fechar')));
+  }
+  root.append(el('div',{class:'mut'},'Carregando…'));load();return root;
+}
+function closeModal(){if(st.modal&&depth>0&&history.state&&history.state.modal)history.back();else{st.modal=null;render();}}
+function setupHistory(){
+  parseHash();
+  if(history.state&&history.state.tab){depth=history.state.n||0;replaceNav();}   /* refresh: mantém o histórico */
+  else{history.replaceState({g:1},'',hashOf());depth=0;pushNav();}   /* base: ao voltar até aqui, pede confirmação para sair */
+  window.addEventListener('popstate',e=>{
+    const s=e.state;
+    if(s&&s.g){ if(Date.now()-lastGuard<2500){history.back();return;} lastGuard=Date.now(); toast('Aperte voltar de novo para sair'); depth=0;pushNav();render();return; }
+    if(s){st.tab=s.tab;st.detail=s.detail;st.showForm=s.form;st.modal=null;depth=s.n||0;}else{parseHash();}
+    render();if(pending){const f=pending;pending=null;Promise.resolve().then(f).catch(()=>{});}});
+  window.addEventListener('keydown',e=>{if(e.key==='Escape'&&st.modal)closeModal();});
+}
+function modalView(){
+  const m=st.modal;
+  if(m.node)return el('div',{class:'ovl',onclick:e=>{if(e.target===e.currentTarget)closeModal();}},el('div',{class:'mdl fmc'},el('div',{class:'fscroll'},m.node())));
+  return el('div',{class:'ovl',onclick:e=>{if(e.target===e.currentTarget)closeModal();}},
+    el('div',{class:'mdl'},el('p',{style:'margin:0 0 14px'},m.text),
+      el('div',{class:'acts',style:'justify-content:flex-end'},
+        el('button',{class:'sec',onclick:closeModal},'Cancelar'),
+        el('button',{class:'pri',onclick:()=>{const f=m.yes;if(depth>0&&history.state&&history.state.modal){pending=async()=>{await f();};history.back();}else{st.modal=null;render();f();}}},m.ok||'Confirmar'))));
+}
+async function minSplash(){const w=1700-(Date.now()-T0);if(w>0)await new Promise(r=>setTimeout(r,w));}
+async function boot(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){st.user=null;await minSplash();return render();}
+  st.user=session.user;
+  const md=session.user.user_metadata||{};
+  try{st.profile=await rpc('doze_ensure_profile',{p_name:md.full_name||md.name||'',p_avatar:md.avatar_url||null});await loadAll();}catch(e){}
+  await minSplash();
+  render();
+}
+sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_IN'||ev==='SIGNED_OUT')boot();});
+
+function googleLogo(){const w=document.createElement('span');w.style.cssText='display:inline-flex;width:20px;height:20px';
+  w.innerHTML='<svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>';return w;}
+function loginView(){
+  return el('div',{class:'wrap hero view'},
+    el('div',{class:'big'},'12'),
+    el('h1',{},'Os Doze'),
+    el('p',{},'Teste o app de outro desenvolvedor e receba testadores no seu. O Google Play pede 12 testadores por 14 dias — aqui a gente se ajuda.'),
+    el('div',{class:'steps'},
+      el('div',{},el('b',{},'1'),'Peça para testar o app de outra pessoa'),
+      el('div',{},el('b',{},'2'),'Cadastre o seu app e peça para testar outro: quando o dono aceitar, o seu é liberado'),
+      el('div',{},el('b',{},'3'),'Receba seus 12 testadores e libere o app no Play')),
+    el('div',{class:'card',style:'text-align:left;margin:18px 0 6px'},el('div',{class:'name'},'O que você encontra no Os Doze'),el('ul',{style:'margin:8px 0 0;padding-left:18px;line-height:1.5'},el('li',{},'Troca de testes entre desenvolvedores Android, de graça.'),el('li',{},'Check-in diário que mostra ao dono quem está testando de verdade.'),el('li',{},'Lembretes, comentários com foto e perfil de cada testador.'),el('li',{},'Pontos para quem testa e ajuda os outros.'))),
+    el('button',{class:'gbtn',onclick:()=>openModal('Importante: entre com o mesmo e-mail que você usa para baixar apps na Play Store do seu celular. Quando você pedir para testar um app, esse e-mail fica disponível para o dono do app, que precisa colocá-lo na lista de testadores do Play Console. Se for outro e-mail, o teste não vai funcionar.',async()=>{const{error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});if(error)toast(error.message,true);},'Entendi, continuar')},
+      googleLogo(),'Entrar com Google'),
+    el('p',{class:'mut',style:'margin-top:14px;font-weight:700;color:var(--warn)'},'Use o mesmo e-mail com que você baixa apps na Play Store.'),
+    el('p',{class:'mut',style:'margin-top:20px'},'Usamos só o seu e-mail Google, que o Play precisa para liberar o teste. Ele só aparece para o desenvolvedor do app que você escolher testar.'),
+    el('p',{class:'mut'},el('a',{href:'privacidade.html',style:'color:var(--ac)'},'Política de Privacidade')));
+}
+function header(){return el('header',{},el('div',{class:'wrap'},el('div',{class:'logo'},el('span',{class:'mk'},'12'),'Doze',el('small',{class:'dv'},'dev',el('b',{},'.'))),
+  el('div',{class:'hr'},el('button',{type:'button',class:'pts','aria-label':'Ver histórico de pontos',style:'color:inherit;font:inherit;font-weight:700;cursor:pointer',onclick:()=>openNodeModal(()=>pointsModal())},'★ ',el('b',{},st.profile?st.profile.points:'–')),el('div',{style:'cursor:pointer',role:'button','aria-label':'Abrir perfil',onclick:()=>goTab('me')},avatar()))));}
+function navView(){const tabs=[['apps','Apps'],['tests','Testes'],['mine','Meus apps'],['me','Perfil']];
+  const pend=(st.nt||[]).filter(x=>x.kind==='pedido'||x.kind==='comentario_dono').reduce((n,x)=>n+Number(x.n),0);const ci=st.myTests.filter(t=>t.status==='instalado'&&!t.checked_today).length+(st.nt||[]).filter(x=>x.kind==='comentario_teste').reduce((n,x)=>n+Number(x.n),0);
+  return el('nav',{},el('div',{class:'bar2'},tabs.map(([k,l])=>el('a',{href:'#'+k,class:st.tab===k?'on':'',onclick:e=>{e.preventDefault();goTab(k);}},svg(k),l,k==='mine'&&pend?el('span',{class:'dot'},pend):null,k==='tests'&&ci?el('span',{class:'dot'},ci):null))));}
+
+function confirmJoin(a){openModal('Este é um projeto sério de ajuda entre desenvolvedores. Escolha só os apps que você consegue testar de verdade durante todo o teste (pelo menos 14 dias de check-in), sem se inscrever em vários de uma vez.',()=>joinApp(a),'Participar');}
+async function joinApp(a){await rpc('doze_join_test',{p_app:a.id});toast('Pedido enviado! O dono do app precisa te aceitar.');await loadAll();st.detail=null;st.tab='tests';pushNav();render();window.scrollTo(0,0);}
+function cropBlob(file,square){return square?new Promise((res,rej)=>{const img=new Image();const u=URL.createObjectURL(file);img.onload=()=>{const m=Math.min(img.width,img.height),S=Math.min(900,m),c=document.createElement('canvas');c.width=c.height=S;c.getContext('2d').drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,S,S);URL.revokeObjectURL(u);c.toBlob(x=>x?res(x):rej(new Error('imagem inválida')),'image/jpeg',.85);};img.onerror=()=>rej(new Error('Não consegui ler essa imagem'));img.src=u;}):shrink(file);}
+function feedbackBox(testId,hint){
+  const list=el('div',{class:'fbl'});const ta=el('textarea',{rows:2,maxlength:600,placeholder:hint||'Escreva seu comentário…',style:'flex:1;min-width:0'});
+  let pend=null,menu=false;const prev=el('div',{});const row=el('div',{style:'position:relative;display:flex;gap:8px;align-items:flex-start'});
+  const pick=async f=>{if(!f)return;menu=false;await setPend(f,false);};
+  const cam=el('input',{type:'file',accept:'image/*',capture:'environment',style:'display:none',onchange:e=>{pick(e.target.files[0]);e.target.value='';}});
+  const gal=el('input',{type:'file',accept:'image/*',style:'display:none',onchange:e=>{pick(e.target.files[0]);e.target.value='';}});
+  async function setPend(file,square){try{const blob=await cropBlob(file,square);pend={file,square,blob,url:URL.createObjectURL(blob)};}catch(err){toast(err.message,true);}drawAll();}
+  function drawAll(){
+    prev.replaceChildren(...[pend?el('div',{style:'margin:8px 0'},el('img',{src:pend.url,alt:'',style:'max-width:100%;max-height:170px;border-radius:12px;display:block'}),
+      el('div',{class:'acts',style:'margin-top:6px;align-items:center'},el('span',{class:'mut'},'Corte:'),el('button',{type:'button',class:(pend.square?'pri':'sec')+' sm',onclick:()=>setPend(pend.file,true)},'Quadrada'),el('button',{type:'button',class:(!pend.square?'pri':'sec')+' sm',onclick:()=>setPend(pend.file,false)},'Inteira'),el('button',{type:'button',class:'sec sm',onclick:()=>{pend=null;drawAll();}},'Remover foto'))):null].filter(Boolean));
+    row.replaceChildren(...[ta,el('button',{type:'button','aria-label':'Anexar foto',class:'sec',style:'padding:10px 12px;flex:none',onclick:()=>{menu=!menu;drawAll();}},svgIco(ICO_CAM)),cam,gal,
+      menu?el('div',{class:'bub',style:'left:auto;right:0;top:52px'},el('button',{type:'button',onclick:()=>cam.click()},svgIco(ICO_CAM),'Câmera'),el('button',{type:'button',onclick:()=>gal.click()},svgIco(ICO_IMG),'Galeria')):null].filter(Boolean));
+    row.querySelector('button span')&&0;
+  }
+  const btn=el('button',{class:'pri',onclick:async()=>{const v=ta.value.trim();if(v.length<2&&!pend)return toast('Escreva um comentário ou envie uma foto',true);btn.disabled=true;
+    try{let url=null;if(pend){const path=st.user.id+'/fb-'+Date.now()+'.jpg';const{error}=await sb.storage.from('doze-shots').upload(path,pend.blob,{contentType:'image/jpeg'});if(error){toast('Falha ao enviar a foto: '+error.message,true);btn.disabled=false;return;}url=SB_URL+'/storage/v1/object/public/doze-shots/'+path;}
+      await rpc('doze_feedback_add_v2',{p_test:testId,p_body:v,p_photo:url});ta.value='';pend=null;menu=false;drawAll();await load();}catch(_){}btn.disabled=false;}},'Enviar comentário');
+  async function load(){try{const r=await rpc('doze_feedback_list_v2',{p_test:testId})||[];sb.rpc('doze_feedback_mark_seen',{p_test:testId}).then(()=>refreshNotifs());list.replaceChildren(...(r.length?r.map(m=>el('div',{class:'fbm'+(m.mine?' me':'')},el('div',{class:'mut'},m.mine?'Você':(m.from_owner?'Dono do app':'Testador'),' · ',new Date(m.created_at).toLocaleDateString('pt-BR')),m.body?el('div',{style:'white-space:pre-wrap'},m.body):null,(m.photo_url&&/^https:\/\//.test(m.photo_url))?el('img',{src:m.photo_url,alt:'Foto do comentário',loading:'lazy',style:'max-width:100%;max-height:220px;border-radius:12px;margin-top:6px;cursor:pointer;display:block',onclick:()=>window.open(m.photo_url,'_blank','noopener')}):null)):[el('div',{class:'mut'},'Nenhum comentário ainda.')]));}catch(_){}}
+  drawAll();load();
+  return el('div',{class:'card'},el('div',{class:'name'},'Comentários do teste'),list,row,prev,el('div',{class:'acts'},btn));
+}
+function contactCard(appId){
+  const c=el('div',{class:'card'},el('div',{class:'name'},'Contato do desenvolvedor'),el('div',{class:'mut'},'Carregando…'));
+  rpc('doze_owner_contact',{p_app:appId}).then(r=>{const o=r&&r[0];c.replaceChildren(el('div',{class:'name'},'Contato do desenvolvedor'),o?el('div',{},el('div',{},o.owner_name||'Desenvolvedor'),el('a',{href:'mailto:'+o.owner_email},o.owner_email),el('div',{class:'mut'},'Use para enviar seu feedback.')):el('div',{class:'mut'},'Disponível depois que o dono aceitar você.'));}).catch(()=>{});
+  return c;
+}
+function detailView(){
+  const a=st.apps.find(x=>x.id===st.detail)||st.myApps.find(x=>x.id===st.detail);
+  if(!a){st.detail=null;return appsView();}
+  const t=st.myTests.find(x=>x.app_id===a.id&&x.status!=='saiu');
+  const mine=st.myApps.some(x=>x.id===a.id);
+  const w=el('div',{class:'wrap view'},el('button',{class:'back',onclick:goBack},'← Voltar'),
+    el('div',{class:'row',style:'align-items:center'},icon(a.icon_url,a.name),el('div',{class:'grow'},el('h2',{style:'margin:0'},a.name),el('div',{class:'mut'},'por ',a.owner_name||'desenvolvedor',' · ',a.category||'Outros'))));
+  const shots=(a.screenshots||[]).filter(u=>/^https:\/\//.test(u));
+  if(shots.length)w.append(el('div',{class:'thumbs',style:'margin-top:14px'},shots.map(u=>el('img',{src:u,alt:'Print do app',loading:'lazy'}))));
+  w.append(el('div',{class:'card'},el('div',{class:'name'},'Sobre o app'),el('div',{class:'desc',style:'white-space:pre-wrap'},a.description||'Sem descrição.'),
+    (a.start_mode==='livre'?null:bar(Number(a.active_testers),12)),grpLine(a)));
+  let acts=el('div',{class:'acts',style:'justify-content:flex-end'});
+  if(mine){w.append(testersCard(st.myApps.find(x=>x.id===a.id)||a,st.testers[a.id]||[]));if(!st.testers[a.id])loadTestersQuiet(a.id);}
+  if(mine)acts.append(el('span',{class:'tag'},'Este é o seu app'));
+  else if(t)acts.append(el('span',{class:'tag '+(t.status==='pendente'?'w':'ok')},t.status==='pendente'?'Pedido enviado: aguardando o dono':'Você já participa'));
+  else acts.append(el('button',{class:'pri',onclick:()=>confirmJoin(a)},'Participar'));
+  if(t&&['adicionado','instalado','concluido'].includes(t.status)){w.append(acts,contactCard(a.id),feedbackBox(t.test_id));acts=null;}
+  if(acts)w.append(acts,el('p',{class:'mut'},'Você pode ver os detalhes sem se inscrever. O pedido só vai para o dono quando você tocar em "Participar".'));
+  return w;
+}
+const CATS=['Ferramentas','Produtividade','Finanças','Vendas e negócios','Saúde e fitness','Educação','Jogos','Social','Entretenimento','Viagens e mapas','Compras','Alimentação','Estilo de vida','Outros'];
+function chips(onchg){const row=el('div',{class:'chips'});const draw=()=>{row.replaceChildren(...['',...CATS].map(c=>el('button',{type:'button',class:'chip'+((st.cat||'')===c?' on':''),onclick:()=>{st.cat=c;draw();onchg();}},c||'Todas')));};draw();return row;}
+function grpLine(a){return a.start_mode==='livre'?el('div',{class:'mut'},el('b',{},'Livre'),' · ',a.active_testers,' testadores'):(()=>{const n=Number(a.active_testers)||0,f=Math.max(0,12-n);return el('div',{class:'mut'},n,' de 12 testadores · ',f>0?el('b',{style:'color:var(--warn)'},'faltam '+f):el('b',{style:'color:var(--ac)'},'completo'));})();}
+function appsView(){
+  const mineIds=new Set(st.myApps.map(a=>a.id));
+  const joined=new Map(st.myTests.map(t=>[t.app_id,t]));
+  const box=el('div',{});
+  const fill=()=>{
+    const q=st.q.toLowerCase();
+    const list=st.apps.filter(a=>!mineIds.has(a.id)&&(!st.cat||a.category===st.cat)&&(a.name+a.description+(a.category||'')).toLowerCase().includes(q));
+    box.replaceChildren(...(list.length?list.map(a=>{const t=joined.get(a.id);
+      return el('div',{class:'card tap',onclick:()=>openDetail(a.id)},el('div',{class:'row'},icon(a.icon_url,a.name),el('div',{class:'grow'},
+        el('div',{class:'name'},a.name),el('div',{class:'mut'},'por ',a.owner_name||'desenvolvedor',' · ',a.category||'Outros'),
+        el('div',{class:'desc'},a.description||'Sem descrição.'),
+        (a.start_mode==='livre'?null:bar(Number(a.active_testers),12)),grpLine(a),
+        el('div',{class:'acts',style:'justify-content:flex-end'},t&&t.status!=='saiu'?el('span',{class:'tag '+(t.status==='pendente'?'w':'ok')},t.status==='pendente'?'Pedido enviado: aguardando o dono':'Você já participa'):
+          el('button',{class:'pri sm',onclick:e=>{e.stopPropagation();confirmJoin(a);}},'Participar')))));
+    }):[empty('box',q?'Nenhum app encontrado para essa busca.':'Ainda não há apps cadastrados. Cadastre o seu na aba "Meus apps".')]));
+  };
+  const inp=el('input',{placeholder:'Buscar app…',value:st.q,oninput:e=>{st.q=e.target.value;clr.style.display=st.q?'flex':'none';fill();}});
+  const clr=el('button',{class:'clr',type:'button','aria-label':'Limpar busca',style:'display:'+(st.q?'flex':'none'),onclick:()=>{st.q='';inp.value='';clr.style.display='none';fill();inp.focus();}},'×');
+  fill();
+  return el('div',{class:'wrap view'},el('h2',{},'Apps para testar'),el('p',{class:'sub'},'Peça para testar. Quando o dono aceitar, o seu app é liberado.'),
+    el('div',{class:'search'},svg('search'),inp,clr),chips(()=>fill()),box,el('div',{class:'acts',style:'justify-content:center;margin-top:8px'},el('button',{class:'sec',onclick:inviteShare},'Convidar amigos para o Os Doze')));
+}
+const STATUS={pendente:['Aguardando o dono do app aceitar você','w'],adicionado:['Liberado: abra o link e instale','ok'],instalado:['Testando','ok'],concluido:['Concluído','ok'],saiu:['Você saiu','']};
+function testModal(t0){
+  const root=el('div',{});const cur=()=>st.myTests.find(x=>x.test_id===t0.test_id)||t0;
+  async function draw(){
+    const t=cur(),inst=t.status==='instalado';let hist=[];try{hist=await rpc('doze_my_checkins',{p_test:t.test_id})||[];}catch(_){}
+    const parts=[el('div',{class:'name',style:'margin-bottom:8px'},t.app_name)];
+    if(t.status==='adicionado'&&t.opt_in_url)parts.push(el('div',{class:'card',style:'margin:0 0 10px'},el('div',{class:'mut'},'Baixe o app pelo botão "Baixar app" e, depois de instalar, toque abaixo.'),el('div',{class:'acts'},el('button',{class:'pri',onclick:async e=>{e.target.disabled=true;try{await rpc('doze_confirm_install',{p_test:t.test_id});await loadAll();toast('Anotado! Agora faça um check-in por dia durante 14 dias.');draw();}catch(_){e.target.disabled=false;}}},'Já instalei o app'))));
+    if(inst){const g=st.gs[t.app_id]||{};const sd=(g.start_mode==='livre'?t.installed_at:g.started_at)||null;if(sd){const d0=Math.floor((Date.now()-new Date(sd).getTime())/86400000)+1;const end=new Date(new Date(sd).getTime()+13*86400000).toLocaleDateString('pt-BR');parts.push(el('div',{class:'mut',style:'margin-bottom:6px'},'Dia ',el('b',{},d0),' do teste · mínimo de 14 dias, previsto até ',end));}}
+    if(inst||t.status==='concluido')parts.push(el('div',{},bar(Math.min(14,t.checkins||0),14),el('div',{class:'mut'},t.checkins,' check-ins (mínimo 14)')));
+    if(inst){
+      if(t.checked_today)parts.push(el('div',{style:'margin-top:8px'},el('span',{class:'tag ok'},'Check-in de hoje feito')));
+      else{const inp=el('input',{placeholder:'O que você testou hoje? (uma frase)',maxlength:200,value:st.ci[t.test_id]||'',oninput:e=>{st.ci[t.test_id]=e.target.value;}});
+        parts.push(el('div',{style:'margin-top:12px'},el('label',{},'Check-in de hoje'),inp,el('button',{class:'pri',style:'margin-top:8px',onclick:async e=>{e.target.disabled=true;try{await rpc('doze_checkin',{p_test:t.test_id,p_note:st.ci[t.test_id]||''});st.ci[t.test_id]='';await loadAll();toast('Check-in feito!');draw();}catch(_){e.target.disabled=false;}}},'Fazer check-in')));}
+    }
+    parts.push(el('div',{class:'name',style:'margin-top:14px'},'Meu histórico'));
+    parts.push(hist.length?el('div',{},hist.map(h=>el('div',{class:'fbm'},el('div',{class:'mut'},new Date(h.day+'T12:00:00').toLocaleDateString('pt-BR')),el('div',{},h.note)))):el('div',{class:'mut'},'Nenhum check-in ainda.'));
+    parts.push(feedbackBox(t.test_id,'Comente algo sobre o teste…'));
+    parts.push(el('div',{class:'acts',style:'justify-content:flex-end;margin-top:6px'},el('button',{class:'sec',onclick:closeModal},'Fechar')));
+    root.replaceChildren(...parts);
+  }
+  root.append(el('div',{class:'mut'},'Carregando…'));draw();return root;
+}
+function testsView(){
+  const list=st.myTests.filter(t=>t.status!=='saiu');
+  const need=list.filter(t=>t.status==='instalado'&&!t.checked_today);
+  const w=el('div',{class:'wrap view'},el('h2',{},'Meus testes'),el('p',{class:'sub'},'Acompanhe os apps que você está testando.'));
+  if(need.length)w.append(el('div',{class:'card',style:'border-color:var(--warn)'},el('div',{class:'name'},'Check-in de hoje pendente'),el('div',{class:'mut'},'Abra o app que você está testando, use um pouco e faça o check-in abaixo. Sem check-ins, o teste não conta.')));
+  if(!list.length){w.append(empty('tests','Você ainda não está testando nenhum app. Escolha um na aba "Apps".'));return w;}
+  list.forEach(t=>{
+    const inst=t.status==='instalado';const body=el('div',{style:'margin-top:12px'});
+    const g=el('div',{class:'grow'},
+      el('div',{class:'name'},t.app_name),el('span',{class:'tag '+STATUS[t.status][1]},STATUS[t.status][0]),ntBadges(t.app_id,['comentario_teste']));
+    {const gl=gsLine(t.app_id);if(gl&&t.status!=='pendente'&&t.status!=='saiu')g.append(gl);}
+    {const ap=st.apps.find(x=>x.id===t.app_id);const sh=((ap&&ap.screenshots)||[]).filter(u=>/^https:\/\//.test(u));
+      if(sh.length)body.append(el('div',{class:'thumbs thumbs-sm',onclick:()=>openDetail(t.app_id)},sh.map(u=>el('img',{src:u,alt:'Print do app',loading:'lazy'}))));}
+    if(inst||t.status==='concluido'){
+      body.append(el('div',{},bar(Math.min(14,t.checkins||0),14),el('div',{class:'mut'},t.checkins,' check-ins (mínimo 14)')));
+    }
+    const acts=el('div',{class:'acts'});
+    if(t.opt_in_url&&t.status!=='concluido')acts.append(el('a',{class:'btn pri',style:'flex:1 1 0;text-align:center;white-space:nowrap',href:t.opt_in_url,target:'_blank',rel:'noopener noreferrer'},'Baixar app'));
+    if(t.status==='adicionado'&&!t.opt_in_url)acts.append(el('div',{class:'card',style:'margin:0;border-color:var(--ac)'},el('div',{class:'name'},'Por que o link ainda está bloqueado?'),el('div',{class:'mut'},'Você foi aceito! Para os 14 dias de teste terem mais eficiência, todos começam juntos. Por isso o link só é liberado quando o grupo tiver 12 testadores e o dono iniciar o teste.'),(()=>{const g=(st.gs||{})[t.app_id];return g?el('div',{style:'margin-top:8px'},bar(Math.min(12,g.participants),12),el('div',{class:'mut'},g.participants>=12?g.participants+' testadores no grupo: mínimo de 12 atingido, aguardando o dono iniciar':g.participants+' de 12 testadores (mínimo para liberar)')):null;})()));
+    if((t.status==='adicionado'&&t.opt_in_url)||inst||t.status==='concluido')acts.append(el('button',{class:'sec',style:'flex:1 1 0;white-space:nowrap'+(inst&&t.checked_today?';border-color:var(--ok,#2fbf8f)':''),onclick:()=>openNodeModal(()=>testModal(t))},'Check-in',(inst&&t.checked_today)?(()=>{const c=document.createElement('span');c.style.cssText='display:inline-flex;vertical-align:-3px;margin-left:8px;color:#2fd69a';c.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-label="Check-in de hoje feito"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';return c;})():null));
+    if(inst){
+      const msg=!t.started_at?'O dono ainda não iniciou o teste. Todos começam juntos.':(t.checkins>=14?'Aguardando o dono confirmar o teste':'');
+      if(msg)acts.append(el('span',{class:'mut'},msg));
+    }
+    acts.append(el('button',{class:'sec',onclick:()=>openDetail(t.app_id)},'Detalhes e feedback'));
+    if(t.status!=='concluido')acts.append(el('button',{class:'sec',onclick:()=>openModal(t.checkins>0?'Sair deste teste? Você perde os pontos já ganhos com este app e o desenvolvedor perde um testador.':'Sair deste teste? O desenvolvedor perde um testador.',async()=>{await rpc('doze_leave_test',{p_test:t.test_id});await loadAll();render();})},'Sair'));
+    body.append(acts);
+    w.append(el('div',{class:'card'},el('div',{class:'row'},icon(t.icon_url,t.app_name),g),body));
+  });
+  return w;
+}
+function shrink(file){return new Promise((res,rej)=>{const img=new Image();const u=URL.createObjectURL(file);img.onload=()=>{const M=900,r=Math.min(1,M/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*r);c.height=Math.round(img.height*r);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error('imagem inválida')),'image/jpeg',.82);};img.onerror=()=>rej(new Error('Não consegui ler essa imagem'));img.src=u;});}
+function squareLogo(file){return new Promise((res,rej)=>{const img=new Image();const u=URL.createObjectURL(file);img.onload=()=>{const S=256,m=Math.min(img.width,img.height),c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,S,S);x.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,S,S);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error('imagem inválida')),'image/jpeg',.9);};img.onerror=()=>rej(new Error('imagem inválida'));img.src=u;});}
+function logoBox(ed){
+  const wrap=el('div',{style:'position:relative;flex:none'});
+  const pen=()=>{const sp=document.createElement('span');sp.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>';return sp;};
+  const pick=async f=>{if(!f)return;try{st.logo=await squareLogo(f);}catch(err){toast(err.message,true);}menu=false;draw();};
+  const cam=el('input',{type:'file',accept:'image/*',capture:'environment',style:'display:none',onchange:e=>pick(e.target.files[0])});
+  const gal=el('input',{type:'file',accept:'image/*',style:'display:none',onchange:e=>pick(e.target.files[0])});
+  let menu=false;
+  const draw=()=>{const src=st.logo?URL.createObjectURL(st.logo):(ed&&ed.icon_url)||'';
+    const box=el('button',{type:'button','aria-label':'Logo do app',class:'lg',onclick:()=>{menu=!menu;draw();}},src?el('img',{src,alt:''}):el('span',{class:'lgp'},'Logo'),el('span',{class:'lgpen'},pen()));
+    wrap.replaceChildren(...[box,cam,gal,menu?el('div',{class:'bub'},el('button',{type:'button',onclick:()=>cam.click()},svgIco(ICO_CAM),'Câmera'),el('button',{type:'button',onclick:()=>gal.click()},svgIco(ICO_IMG),'Galeria'),(st.logo)?el('button',{type:'button',onclick:()=>{st.logo=null;menu=false;draw();}},'Remover'):null):null].filter(Boolean));};
+  draw();return wrap;}
+function logoField(){
+  const box=el('div',{});
+  const draw=()=>{box.replaceChildren(el('label',{},'Logo do app (opcional)'),
+    st.logo?el('div',{class:'pv'},el('div',{},el('img',{src:URL.createObjectURL(st.logo),alt:'',style:'border-radius:14px'}),el('b',{onclick:()=>{st.logo=null;draw();}},'×'))):
+    el('input',{type:'file',accept:'image/*',onchange:async e=>{const f=e.target.files[0];if(!f)return;try{st.logo=await squareLogo(f);}catch(err){toast(err.message,true);}draw();}}));};
+  draw();return box;}
+async function uploadLogo(){if(!st.logo)return '';const path=st.user.id+'/logo-'+Date.now()+'.jpg';
+  const{error}=await sb.storage.from('doze-shots').upload(path,st.logo,{contentType:'image/jpeg'});if(error){toast('Falha ao enviar logo: '+error.message,true);throw error;}
+  return SB_URL+'/storage/v1/object/public/doze-shots/'+path;}
+function shotsField(){
+  const box=el('div',{});
+  const draw=()=>{box.replaceChildren(el('label',{},'Prints do app (opcional, até 8)'),
+    el('div',{class:'pv'},st.shots.map((b,i)=>el('div',{},el('img',{src:URL.createObjectURL(b.blob),alt:''}),el('b',{onclick:()=>{st.shots.splice(i,1);draw();}},'×')))),
+    st.shots.length<8?el('input',{type:'file',accept:'image/*',multiple:true,onchange:async e=>{for(const f of [...e.target.files].slice(0,8-st.shots.length)){try{st.shots.push({blob:await shrink(f)});}catch(err){toast(err.message,true);}}draw();}}):null);};
+  draw();return box;}
+function keepField(){const box=el('div',{});const draw=()=>{box.replaceChildren(...((st.keep&&st.keep.length)?[el('label',{},'Prints atuais'),el('div',{class:'pv'},st.keep.map((u,i)=>el('div',{},el('img',{src:u,alt:''}),el('b',{onclick:()=>{st.keep.splice(i,1);draw();}},'×'))))]:[]));};draw();return box;}
+async function uploadShots(){const urls=[];for(const [i,b] of st.shots.entries()){const path=st.user.id+'/'+Date.now()+'-'+i+'.jpg';
+  const{error}=await sb.storage.from('doze-shots').upload(path,b.blob,{contentType:'image/jpeg'});if(error){toast('Falha ao enviar print: '+error.message,true);throw error;}
+  urls.push(SB_URL+'/storage/v1/object/public/doze-shots/'+path);}return urls;}
+async function loadTesters(id){st.testers[id]=await rpc('doze_app_testers_v2',{p_app:id})||[];render();}
+function penSvg(){const w=document.createElement('span');w.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>';return w;}
+async function loadTestersQuiet(id){st.testers[id]=await rpc('doze_app_testers_v2',{p_app:id})||[];render();}
+function testersCard(a,ts){
+      const pend=ts.filter(t=>t.status==='pendente');
+      return (el('div',{class:'card'},
+        el('div',{class:'mut'},'Quando alguém pedir para testar seu app, aparece aqui como "Pedido novo". 1) Toque em Aceitar. 2) Copie o e-mail e cole na lista de testadores do Play Console. 3) Acompanhe os check-ins diários e remova quem sumir.'),
+        null,
+        ts.length?ts.map(t=>{
+          const today=new Date(Date.now()-3*3600e3).toISOString().slice(0,10);
+          const days=t.last_checkin?Math.floor((new Date(today)-new Date(t.last_checkin))/86400000):null;
+          const inst=t.status==='instalado';
+          const old=inst&&t.installed_at&&(Date.now()-new Date(t.installed_at).getTime()>2*86400000)&&(days===null||days>2);
+          return el('div',{style:'margin-top:12px;padding-top:10px;border-top:1px solid var(--line)'},
+            el('div',{class:'row',style:'align-items:center'},el('div',{class:'grow'},el('div',{class:'name'},t.tester_name||'Testador'),el('div',{class:'mut'},t.email)),
+              t.status==='pendente'?el('span',{class:'tag w'},'Pedido novo'):el('span',{class:'tag '+(old?'w':'ok')},old?'Inativo':STATUS[t.status][0])),
+            t.status==='pendente'&&!a.liberado?el('div',{class:'mut',style:'margin-top:6px'},'Você só pode aceitar testadores depois que o dono de outro app aceitar o seu pedido de teste.'):null,
+            t.status==='pendente'?el('div',{class:'acts'},el('button',{class:'pri',disabled:!a.liberado,onclick:async()=>{await rpc('doze_mark_added',{p_test:t.test_id});await loadTesters(a.id);await loadAll();render();const em=((st.testers[a.id]||[]).find(x=>x.test_id===t.test_id)||{}).email;if(em)copyText(em,'Aceito! E-mail copiado: cole na lista de testadores do Play Console.');}},'Aceitar'),el('button',{class:'sec',onclick:async()=>{await rpc('doze_flag_tester',{p_test:t.test_id});await loadTesters(a.id);await loadAll();render();}},'Recusar')):null,
+            (inst&&a.test_started_at)?(()=>{const el_=Math.min(14,Math.floor((Date.now()-new Date(a.test_started_at))/86400000)+1);const f=Math.max(0,el_-t.checkins);return el('div',{style:'margin-top:6px;font-weight:700'},'Usou o app ',t.checkins,' de ',el_,' dias',f>0?el('span',{style:'color:var(--warn)'},' · faltou '+f+' dia(s)'):el('span',{style:'color:var(--ac)'},' · em dia'));})():null,
+            inst?el('div',{class:'mut',style:'margin-top:6px'},t.checkins,' check-ins · último: ',t.last_checkin?(days===0?'hoje':'há '+days+' dia(s)'):'nenhum ainda',t.last_note?' — "'+t.last_note+'"':''):null,
+            (inst||t.status==='adicionado'||t.status==='concluido')?el('div',{class:'acts tacts'},el('button',{class:'sec',onclick:e=>{const nx=e.target.closest('.acts').nextSibling;if(nx&&nx.classList&&nx.classList.contains('fbwrap')){nx.remove();}else{const d=el('div',{class:'fbwrap'},feedbackBox(t.test_id,'Responda ao testador…'));e.target.closest('.acts').after(d);}}},'Comentários'),(inst&&t.status==='instalado'&&t.checkins>=14)?el('button',{class:'pri',onclick:()=>openModal('Confirmar que este testador completou o teste? Ao confirmar, os pontos que ele ganhou com os check-ins deste app viram disponíveis para ele e o teste dele é encerrado.',async()=>{await rpc('doze_confirm_test',{p_test:t.test_id});await loadTesters(a.id);await loadAll();render();toast('Teste confirmado e encerrado.');},'Confirmar teste')},'Confirmar teste concluído'):null,el('button',{class:'sec',onclick:()=>openModal('Remover este testador? Ele sai do teste, deixa de contar no grupo e não ganha ponto.',async()=>{await rpc('doze_flag_tester',{p_test:t.test_id});await loadTesters(a.id);await loadAll();render();})},'Remover')):null);
+        }):el('div',{class:'empty'},'Ninguém entrou ainda.')));
+}
+function mineView(){
+  const w=el('div',{class:'wrap view'},el('h2',{},'Meus apps'),el('p',{class:'sub'},'Publique seu app e acompanhe seus testadores.'));
+  const pts=st.profile?st.profile.points:0;const nt=st.myTests.filter(t=>['adicionado','instalado','concluido'].includes(t.status)).length;
+  w.append(el('details',{class:'card how'},el('summary',{class:'name'},'Como funciona'),
+    el('ol',{class:'mut',style:'padding-left:18px;margin:8px 0'},
+      el('li',{},'Cadastre seu app quando quiser. O primeiro é livre; para publicar os próximos, você precisa de 12 pontos disponíveis, que são gastos na publicação.'),
+      el('li',{},'Seu app só fica liberado depois que o dono de outro app aceitar o seu pedido de teste. Cada aceite libera um app seu.'),
+      el('li',{},'Enquanto espera, você pode pedir para testar quantos apps quiser.'),
+      el('li',{},'Com no mínimo 12 testadores aceitos (pode ter mais), toque em "Iniciar teste para todos". Os 14 dias começam juntos para todos.'),
+      el('li',{},'Cada dia de check-in vale 1 ponto, que entra quando o dono confirma o teste.')),
+    el('div',{class:'mut'},'Você foi aceito em ',el('b',{},nt),' e cadastrou ',el('b',{},st.myApps.length),'. Seus pontos: ',el('b',{},pts),((st.profile&&st.profile.points_pending)?' (+'+st.profile.points_pending+' pendentes)':''),'.'),));
+  if(!st.showForm)w.append(el('button',{class:'fab',onclick:()=>{if(st.showForm){goBack();}else{st.showForm=true;pushNav();render();window.scrollTo(0,0);}}},st.showForm?'Fechar':'+ Cadastrar'));
+  if(!st.showForm)st.edit=null;
+  const ed=st.edit?st.myApps.find(x=>x.id===st.edit):null;
+  if(st.showForm){
+    if(ed&&!st.keep)st.keep=(ed.screenshots||[]).slice();
+    const f={};const fld=(k,lbl,type,ph)=>[el('label',{},lbl),(f[k]=type==='area'?el('textarea',{rows:3,placeholder:ph||'',maxlength:500}):el('input',{placeholder:ph||'',maxlength:150}))];
+    const fcard=el('div',{class:'fcont'},el('div',{style:'display:flex;justify-content:space-between;align-items:center;margin-bottom:10px'},el('div',{class:'name'},ed?'Editar app':'Cadastrar app'),el('button',{type:'button','aria-label':'Fechar',class:'xbtn',onclick:()=>goBack()},'×')),el('div',{style:'display:flex;gap:12px;align-items:flex-start'},logoBox(ed),el('div',{style:'flex:1;min-width:0'},fld('name','Nome do app','',''))),fld('desc','Descrição do app (obrigatória)','area','O que o app faz, em uma ou duas frases'),
+      fld('pkg','Nome do pacote (opcional)','','com.exemplo.meuapp'),fld('url','Link de entrada do teste fechado','','https://play.google.com/apps/testing/…'),
+      el('div',{},el('label',{},'Categoria do app'),(f.cat=el('select',{},CATS.map(c=>el('option',{value:c},c))))),
+      ed?el('div',{},el('label',{},'Visibilidade do link'),(f.mode=el('select',{},el('option',{value:'grupo'},'Só quando o grupo concluir'),el('option',{value:'livre'},'Livre')))):null,
+      ed?keepField():null,shotsField(),
+      el('p',{class:'mut'},'No Play Console, em Teste fechado > Testadores, copie o link de participação e cole aqui. Ele só aparece para quem você liberar.'),
+      null);
+    const saveBtn=el('button',{class:'pri',onclick:async e=>{
+        const url=f.url.value.trim();if(f.name.value.trim().length<2)return toast('Informe o nome do app',true);
+        if(f.desc.value.trim().length<10)return toast('Escreva a descrição do app (mínimo 10 letras)',true);
+        if(!/^https:\/\/play\.google\.com\//.test(url))return toast('O link deve começar com https://play.google.com/',true);
+        e.target.disabled=true;
+        try{const urls=await uploadShots();const logo=await uploadLogo();if(ed){if((st.keep||[]).length+urls.length>8)throw new Error('No máximo 8 prints');await rpc('doze_update_app_v2',{p_mode:f.mode.value,p_app:ed.id,p_name:f.name.value.trim(),p_description:f.desc.value.trim(),p_package:f.pkg.value.trim(),p_opt_in:url,p_icon:logo||ed.icon_url||'',p_shots:(st.keep||[]).concat(urls)});}else{const cr=await rpc('doze_create_app_v3',{p_name:f.name.value.trim(),p_description:f.desc.value.trim(),p_package:f.pkg.value.trim(),p_opt_in:url,p_icon:logo,p_shots:urls});await rpc('doze_set_category',{p_app:cr.id,p_cat:f.cat.value});}
+          if(ed)await rpc('doze_set_category',{p_app:ed.id,p_cat:f.cat.value});
+          st.shots=[];st.logo=null;st.keep=null;
+          st.showForm=false;replaceNav();await loadAll();render();toast(ed?'App atualizado!':'App cadastrado! Ele aparece para os outros quando você entrar no teste de um app.');}catch(err){if(err&&err.message&&!err.code)toast(err.message,true);e.target.disabled=false;}
+      }},ed?'Salvar alterações':'Cadastrar app');
+    const delBtn=ed?el('button',{class:'sec',style:'margin-top:8px;width:100%;color:var(--bad)',onclick:()=>openModal('Excluir este app? Ele some da lista e os pedidos dos testadores são apagados. Não dá para desfazer.',async()=>{await rpc('doze_delete_app',{p_app:ed.id});st.showForm=false;replaceNav();await loadAll();render();toast('App excluído');},'Excluir')},'Excluir este app'):null;
+    f.cat.value=(ed&&ed.category)||'Outros';
+    if(ed){f.name.value=ed.name||'';f.desc.value=ed.description||'';f.pkg.value=ed.package_name||'';f.url.value=ed.opt_in_url||'';f.mode.value=ed.start_mode||'grupo';}
+    w.append(el('div',{class:'ovl',onclick:e=>{if(e.target===e.currentTarget)goBack();}},el('div',{class:'mdl fmc'},el('div',{class:'fscroll'},fcard),el('div',{class:'ffoot'},saveBtn,delBtn))));
+  }
+  if(!st.myApps.length&&!st.showForm)w.append(empty('mine','Você ainda não publicou nenhum app.'));
+  st.myApps.filter(a=>a.status!=='encerrado').forEach(a=>{
+    const open=st.open===a.id,ts=st.testers[a.id]||[];
+    w.append(el('div',{class:'card',style:'position:relative'},el('button',{class:'pen','aria-label':'Editar app',onclick:()=>{st.edit=a.id;st.keep=null;st.shots=[];st.logo=null;st.showForm=true;pushNav();render();window.scrollTo(0,0);}},penSvg()),el('div',{class:'row'},el('div',{style:'cursor:pointer',onclick:()=>openDetail(a.id)},icon(a.icon_url,a.name)),el('div',{class:'grow'},
+      el('div',{class:'name',style:'cursor:pointer;padding-right:40px',onclick:()=>openDetail(a.id)},a.name),a.liberado?el('span',{class:'tag ok'},'Visível para testadores'):el('span',{class:'tag w'},'Aguardando você testar um app'),ntBadges(a.id,['pedido','comentario_dono'],()=>openNodeModal(()=>testersModal(a))),(a.start_mode==='livre'?null:bar(Number(a.accepted),12)),
+      el('div',{class:'mut'},a.start_mode==='livre'?a.accepted+' testadores aceitos · Livre':(Number(a.accepted)>=12?a.accepted+' testadores aceitos (mínimo de 12 atingido; pode aceitar mais antes de iniciar)':a.accepted+' de 12 testadores aceitos (mínimo para liberar)'),Number(a.pending_testers)?' · '+a.pending_testers+' aguardando você':''),gsLine(a.id),a.test_started_at?el('span',{class:'tag ok'},'Teste iniciado'):null,
+      el('div',{class:'acts'},(a.start_mode!=='livre'&&!a.test_started_at&&Number(a.accepted)>=12)?el('button',{class:'pri',onclick:()=>openModal('Iniciar o teste para todos agora? Os 14 dias começam hoje para os '+a.accepted+' testadores e você não poderá aceitar novos.',async()=>{await rpc('doze_start_test',{p_app:a.id});await loadAll();render();toast('Teste iniciado para todos!');},'Iniciar teste')},'Iniciar teste para todos'):null,!a.liberado?el('button',{class:'pri',onclick:()=>goTab('apps')},'Escolher um app para testar'):null,el('button',{class:'sec sm',onclick:()=>openNodeModal(()=>testersModal(a))},'Ver testadores'),
+        el('button',{class:'sec sm',onclick:()=>openModal('Marcar este app como concluído? Faça isso só depois de ver no Play Console que o teste foi concluído/aprovado. O app sai da lista de testes e você ganha 1 ponto.',async()=>{await rpc('doze_finish_app',{p_app:a.id});await loadAll();render();toast('App concluído! +1 ponto');},'Marcar concluído')},'Concluir'))))));
+    if(open)w.append(testersCard(a,ts));
+  });
+  const fin=st.myApps.filter(a=>a.status==='encerrado');
+  if(fin.length){w.append(el('h2',{style:'font-size:18px'},'Apps concluídos'));
+    fin.forEach(a=>w.append(el('div',{class:'card'},el('div',{class:'row',style:'align-items:center'},icon(a.icon_url,a.name),el('div',{class:'grow'},el('div',{class:'name'},a.name),el('span',{class:'tag ok'},'Concluído')),
+      el('button',{class:'sec',onclick:()=>openModal('Excluir este app do seu perfil? Não dá para desfazer.',async()=>{await rpc('doze_delete_app',{p_app:a.id});await loadAll();render();},'Excluir')},'Excluir')))));}
+  return w;
+}
+function meView(){
+  const p=st.profile||{};
+  const done=st.myTests.filter(t=>t.status==='concluido').length;
+  const going=st.myTests.filter(t=>t.status!=='saiu'&&t.status!=='concluido').length;
+  return el('div',{class:'wrap view'},
+    el('div',{class:'profile'},avatar(),el('div',{class:'name',style:'font-size:20px'},p.name||'Você'),el('div',{class:'mut'},st.user.email)),
+    el('div',{class:'stats'},
+      el('div',{class:'stat'},el('b',{},p.points??0),el('span',{},'Pontos')),
+      el('div',{class:'stat'},el('b',{},going),el('span',{},'Testando')),
+      el('div',{class:'stat'},el('b',{},done),el('span',{},'Testes concluídos'))),
+    st.myApps.some(a=>a.status==='encerrado')?el('div',{class:'card'},el('div',{class:'name'},'Meus apps concluídos'),el('div',{class:'mut'},st.myApps.filter(a=>a.status==='encerrado').map(a=>a.name).join(' · '))):null,
+    el('details',{class:'card how'},el('summary',{class:'name'},'Como funciona'),el('ol',{},
+      el('li',{},'Escolha um app na aba Apps e toque em "Participar".'),
+      el('li',{},'O desenvolvedor adiciona seu e-mail Google no Play Console.'),
+      el('li',{},'Você toca em "Baixar app", instala e marca "Já instalei" no botão Check-in. O desenvolvedor acompanha seus check-ins e pode remover quem sumir.'),
+      el('li',{},'Teste e faça um check-in por dia contando o que testou. Cada check-in vale 1 ponto, que fica pendente até o dono concluir o teste. O teste dura até o dono concluir (precisa de pelo menos 14 check-ins) e pode passar de 14 dias. Se você sair no meio, perde os pontos daquele app.'),
+      el('li',{},'Quando o dono de um app aceitar você, o seu app é liberado para receber testadores (um por um).'))),
+    inviteCard(),pushCard(),el('div',{class:'acts'},el('button',{class:'sec',onclick:async()=>{await sb.auth.signOut();}},'Sair da conta')),
+    el('p',{class:'mut',style:'text-align:center;margin-top:18px'},el('a',{href:'privacidade.html',style:'color:var(--ac)'},'Política de Privacidade')));
+}
+
+/* ---- Anúncios (rodapé): fica desligado até preencher ADS.client e ADS.slot ---- */
+const ADS={client:'',slot:''};   /* ex.: client:'ca-pub-XXXXXXXXXXXXXXXX', slot:'1234567890' */
+let adsLoaded=false;
+function adView(){
+  if(!ADS.client||!ADS.slot)return null;document.body.style.paddingBottom='180px';
+  const box=el('div',{class:'ad'},el('span',{class:'adl'},'Publicidade'));
+  const ins=document.createElement('ins');ins.className='adsbygoogle';ins.style.cssText='display:block;width:100%;height:60px';
+  ins.setAttribute('data-ad-client',ADS.client);ins.setAttribute('data-ad-slot',ADS.slot);ins.setAttribute('data-ad-format','horizontal');ins.setAttribute('data-full-width-responsive','true');
+  box.append(ins);
+  setTimeout(()=>{try{if(!adsLoaded){const sc=document.createElement('script');sc.async=true;sc.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(ADS.client);sc.crossOrigin='anonymous';document.head.append(sc);adsLoaded=true;}(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(_){}},50);
+  return box;
+}
+function render(){
+  const app=$('#app');app.replaceChildren();
+  if(!st.user){app.append(loginView());if(st.modal)app.append(modalView());return;}
+  app.append(header());
+  app.append(st.detail&&st.tab==='apps'?detailView():{apps:appsView,tests:testsView,mine:mineView,me:meView}[st.tab]());
+  if(st.modal)app.append(modalView());
+  const ad=adView();if(ad)app.append(ad);
+  app.append(navView());
+}
+const VAPID='BJttRltTV5g4N1-a1oHhU6WB5ZKzJyAVtkWXUyxuLqCn6SnvFxF7lKAii3fIc38lJWumnHeZ85kt3CKn-0b7puE';
+function b64u(s){const p='='.repeat((4-s.length%4)%4),b=(s+p).replace(/-/g,'+').replace(/_/g,'/'),r=atob(b);return Uint8Array.from([...r].map(c=>c.charCodeAt(0)));}
+const pushOk=()=>'serviceWorker'in navigator&&'PushManager'in window&&'Notification'in window;
+async function pushSub(){try{const reg=await navigator.serviceWorker.ready;return await reg.pushManager.getSubscription();}catch(_){return null;}}
+async function pushEnable(){
+  try{const perm=await Notification.requestPermission();if(perm!=='granted'){toast('Notificações bloqueadas no navegador',true);return;}
+    const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID)});
+    const j=sub.toJSON();await rpc('doze_push_subscribe',{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth});toast('Notificações ativadas');st.pushOn=true;render();
+  }catch(e){toast('Não foi possível ativar as notificações',true);}
+}
+async function pushDisable(){try{const sub=await pushSub();if(sub){try{await rpc('doze_push_unsubscribe',{p_endpoint:sub.endpoint});}catch(_){}await sub.unsubscribe();}st.pushOn=false;toast('Notificações desativadas');render();}catch(_){}}
+function pushCard(){
+  if(!pushOk())return el('div',{class:'card'},el('div',{class:'name'},'Notificações'),el('div',{class:'mut'},'Este navegador não permite notificações. No iPhone, instale o app na tela inicial primeiro.'));
+  const on=st.pushOn===true&&Notification.permission==='granted';
+  const sw=el('button',{type:'button',class:'sw'+(on?' on':''),role:'switch','aria-checked':String(on),'aria-label':'Notificações',onclick:()=>{sw.disabled=true;(on?pushDisable():pushEnable()).finally(()=>{sw.disabled=false;});}},el('span',{class:'kn'}));
+  return el('div',{class:'card'},el('div',{class:'row',style:'align-items:center;gap:12px'},el('div',{style:'flex:1;min-width:0'},el('div',{class:'name'},'Notificações'),el('div',{class:'mut'},on?'Ligadas: você recebe avisos de pedidos, aceites e check-ins.':'Desligadas. Ligue para receber avisos de pedidos, aceites e check-ins.')),sw));
+}
+if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js').then(()=>pushSub()).then(s=>{st.pushOn=!!s&&Notification.permission==='granted';}).catch(()=>{});}
+setupHistory();
+let lastPend=null,polling=false;
+async function pollNew(){
+  if(polling||!st.user||document.hidden)return;polling=true;
+  try{
+    const r=await sb.rpc('doze_notifs');if(r.error||!r.data){polling=false;return;}
+    const key=x=>x.app_id+'|'+x.kind;
+    const old=new Map((st.nt||[]).map(x=>[key(x),Number(x.n)]));
+    const fresh=r.data.filter(x=>Number(x.n)>(old.get(key(x))||0));
+    st.nt=r.data;
+    if(fresh.length){const x=fresh[0];toast(x.kind==='pedido'?'Novo pedido de teste em '+x.app_name:x.kind==='aceito'?'Você foi aceito em '+x.app_name:x.kind==='lembrete'?'Lembrete: faça o check-in de '+x.app_name:'Novo comentário em '+x.app_name);}
+    lastPend=1;
+    if(fresh.length||old.size!==r.data.length){await loadAll();if(!st.showForm&&!st.modal&&!document.querySelector('.fbl')){const ph=document.activeElement;if(!ph||!/INPUT|TEXTAREA|SELECT/.test(ph.tagName))render();}}
+  }catch(_){}
+  polling=false;
+}
+setInterval(pollNew,30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)pollNew();});
+
+boot();
+</script>
+</body>
+</html>
