@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.lpanissa.osdoze",
+        "sha256_cert_fingerprints": ["37:0E:94:66:45:06:BA:C2:F0:6E:DB:AA:C9:87:9E:DB:69:F3:E0:3B:3C:85:2E:69:67:8F:AD:D4:8A:99:7C:5C"]
+      }
+    }]
