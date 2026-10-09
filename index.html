@@ -242,7 +242,7 @@ function pixModal(){
   const root=el('div',{});const before=st.prem?new Date(st.prem).getTime():0;let pix=null,err=null,stop=false;
   function draw(){root.replaceChildren(...[
     el('div',{class:'name',style:'margin-bottom:6px'},'Os Doze Premium · R$ 4,90'),
-    el('div',{class:'mut'},'Pague por Pix e ganhe 30 dias de Premium: publique quantos apps quiser, sem gastar pontos. O Premium libera sozinho assim que o pagamento cair.'),
+    el('div',{class:'mut'},'Pague por Pix e ganhe 30 dias de Premium. Ele libera sozinho assim que o pagamento cair.'),BEN(),
     err?el('div',{class:'mut',style:'color:var(--bad);margin-top:10px'},err):null,
     !pix&&!err?el('div',{class:'mut',style:'margin-top:12px'},'Gerando o Pix…'):null,
     pix?el('div',{style:'text-align:center;margin-top:12px'},
@@ -256,11 +256,12 @@ function pixModal(){
   async function start(){err=null;pix=null;draw();try{pix=await pixCreate();draw();poll();}catch(e){err=e.message||'Erro ao gerar o Pix.';draw();}}
   start();return root;
 }
+function BEN(){return el('ul',{style:'margin:8px 0 0;padding-left:18px;line-height:1.5'},el('li',{},'Publique quantos apps quiser, sem gastar os 12 pontos.'),el('li',{},'Sem fila de espera: o app entra no ar na hora.'),el('li',{},'Sem o limite de 5 apps ativos.'),el('li',{},'Você continua ganhando pontos, e eles ficam guardados para quando o Premium acabar.'),el('li',{},'Seus apps já publicados continuam no ar mesmo depois que o Premium vencer.'),el('li',{},'Você ajuda a manter o Os Doze funcionando.'));}
 function premiumCard(){
   const u=st.prem?new Date(st.prem):null;
   if(u)return el('div',{class:'card'},el('div',{class:'name'},'★ Premium ativo'),el('div',{class:'mut'},'Você publica quantos apps quiser, sem gastar pontos. Vale até ',el('b',{},u.toLocaleDateString('pt-BR')),'. Seus pontos continuam guardados.'),IN_TWA?null:el('div',{class:'acts'},el('button',{class:'sec',onclick:()=>openNodeModal(()=>pixModal())},'Renovar mais 30 dias')));
   if(IN_TWA)return null;
-  return el('div',{class:'card'},el('div',{class:'name'},'Os Doze Premium'),el('div',{class:'mut'},'R$ 4,90 por 30 dias, pago por Pix. Publique quantos apps quiser, sem gastar pontos e sem fila. Você continua ganhando pontos e eles ficam guardados para quando o Premium acabar.'),el('div',{class:'acts'},el('button',{class:'pri',onclick:()=>openNodeModal(()=>pixModal())},'Quero ser Premium')));
+  return el('div',{class:'card'},el('div',{class:'name'},'Os Doze Premium'),el('div',{class:'mut'},'R$ 4,90 por 30 dias, pago por Pix.'),BEN(),el('div',{class:'acts'},el('button',{class:'pri',onclick:()=>openNodeModal(()=>pixModal())},'Quero ser Premium')));
 }
 function adminModal(){
   const root=el('div',{});let d=null;
