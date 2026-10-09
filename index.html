@@ -618,7 +618,7 @@ function meView(){
       el('li',{},'Você toca em "Baixar app", instala e marca "Já instalei" no botão Check-in. O desenvolvedor acompanha seus check-ins e pode remover quem sumir.'),
       el('li',{},'Teste e faça um check-in por dia contando o que testou. Cada check-in vale 1 ponto, que fica pendente até o dono concluir o teste. O teste dura até o dono concluir (precisa de pelo menos 14 check-ins) e pode passar de 14 dias. Se você sair no meio, perde os pontos daquele app.'),
       el('li',{},'Quando o dono de um app aceitar você, o seu app é liberado para receber testadores (um por um).'))),
-    inviteCard(),pushCard(),el('div',{class:'acts'},el('button',{class:'sec',onclick:async()=>{await sb.auth.signOut();}},'Sair da conta')),
+    inviteCard(),pushCard(),el('div',{class:'acts'},el('button',{class:'sec',onclick:async()=>{await sb.auth.signOut();}},'Sair da conta'),el('button',{class:'sec',onclick:()=>{location.href='mailto:lpanissa@gmail.com?subject='+encodeURIComponent('Denúncia – Os Doze')+'&body='+encodeURIComponent('Descreva o problema (usuário, app ou conteúdo):\n');}},'Denunciar / Contato')),
     el('p',{class:'mut',style:'text-align:center;margin-top:18px'},el('a',{href:'privacidade.html',style:'color:var(--ac)'},'Política de Privacidade')));
 }
 
