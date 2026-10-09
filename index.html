@@ -160,6 +160,8 @@ const T0=Date.now();
 const SB_URL='https://fyxksvydxwvygjebanno.supabase.co';
 const SB_KEY='sb_publishable_HA-Ez2aumnGCLZt2rf-bsQ_MqipvpWK';
 const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+try{if((document.referrer||'').startsWith('android-app://'))localStorage.setItem('doze_twa','1');}catch(_){}
+const IN_TWA=(()=>{try{return localStorage.getItem('doze_twa')==='1';}catch(_){return false;}})();
 const $=s=>document.querySelector(s);
 function gsLine(id){const g=(st.gs||{})[id];if(!g)return null;
   const open_=g.start_mode==='livre'||g.started_at;
@@ -206,6 +208,7 @@ async function loadAll(){
   const ids=[...new Set([...st.myApps.filter(x=>x.status==='ativo').map(x=>x.id),...st.myTests.filter(x=>['adicionado','instalado','concluido'].includes(x.status)).map(x=>x.app_id)])];
   st.gs={};await Promise.all(ids.map(async id=>{try{const r=await rpc('doze_group_stats_v3',{p_app:id});if(r&&r[0])st.gs[id]=r[0];}catch(_){}}));
   const{data}=await sb.from('doze_profiles').select('*').eq('id',st.user.id).single();if(data)st.profile=data;
+  try{const r=await sb.rpc('doze_my_premium');st.prem=r.error?null:(r.data||null);}catch(_){}
 }
 
 /* ---- navegação com histórico (botão voltar do celular, refresh mantém a página) ---- */
@@ -233,6 +236,45 @@ async function inviteShare(){if(!st.ref)await loadRef();const text='Estou usando
 function inviteCard(){const r=st.ref||{};const n=Number(r.invited||0),g=Number(r.rewarded||0);return el('div',{class:'card'},el('div',{class:'name'},'Convide amigos e ganhe pontos'),el('div',{class:'mut'},'Você ganha 3 pontos quando um amigo que entrou pelo seu link fizer o primeiro check-in. Quanto mais gente aqui, mais rápido todo mundo fecha os 12 testadores.'),n?el('div',{class:'mut',style:'margin-top:6px'},'Convidados: ',el('b',{},n),' · Já pontuaram: ',el('b',{},g),' (',el('b',{},g*3),' pontos)'):null,el('div',{class:'acts'},el('button',{class:'pri',onclick:inviteShare},'Convidar amigos')));}
 function ckLine(t){if(!t.last_checkin)return 'Nenhum check-in ainda';const today=new Date(Date.now()-3*3600e3).toISOString().slice(0,10);const d=Math.floor((new Date(today)-new Date(t.last_checkin))/86400000);
   return 'Último check-in: '+(d<=0?'hoje':d===1?'ontem':'há '+d+' dias')+' ('+t.checkins+' no total)'+(t.last_note?' — "'+t.last_note+'"':'');}
+/* ---- Premium (Pix R$ 4,90 / 30 dias) ---- */
+async function pixCreate(){const{data:{session}}=await sb.auth.getSession();const r=await fetch(SB_URL+'/functions/v1/premium-create',{method:'POST',headers:{Authorization:'Bearer '+session.access_token,apikey:SB_KEY,'Content-Type':'application/json'},body:'{}'});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Não foi possível gerar o Pix agora.');return j;}
+function pixModal(){
+  const root=el('div',{});const before=st.prem?new Date(st.prem).getTime():0;let pix=null,err=null,stop=false;
+  function draw(){root.replaceChildren(...[
+    el('div',{class:'name',style:'margin-bottom:6px'},'Os Doze Premium · R$ 4,90'),
+    el('div',{class:'mut'},'Pague por Pix e ganhe 30 dias de Premium: publique quantos apps quiser, sem gastar pontos. O Premium libera sozinho assim que o pagamento cair.'),
+    err?el('div',{class:'mut',style:'color:var(--bad);margin-top:10px'},err):null,
+    !pix&&!err?el('div',{class:'mut',style:'margin-top:12px'},'Gerando o Pix…'):null,
+    pix?el('div',{style:'text-align:center;margin-top:12px'},
+      pix.qr_code_base64?el('img',{src:'data:image/png;base64,'+pix.qr_code_base64,alt:'QR Code Pix',style:'width:200px;height:200px;background:#fff;padding:8px;border-radius:12px'}):null,
+      el('div',{class:'mut',style:'margin:8px 0'},'Abra o app do seu banco, escolha Pix e leia o QR Code, ou use o Pix copia e cola.'),
+      el('button',{class:'pri',onclick:()=>copyText(pix.qr_code,'Código Pix copiado!')},'Copiar Pix copia e cola'),
+      el('div',{class:'mut',style:'margin-top:10px'},'Aguardando o pagamento…')):null,
+    el('div',{class:'acts',style:'justify-content:flex-end;margin-top:12px'},err?el('button',{class:'sec',onclick:start},'Tentar de novo'):null,el('button',{class:'sec',onclick:closeModal},'Fechar'))
+  ].filter(Boolean));}
+  async function poll(){while(!stop){await new Promise(r=>setTimeout(r,4000));if(stop||!st.modal)return;try{const r=await sb.rpc('doze_my_premium');const t=r.data?new Date(r.data).getTime():0;if(t>before){stop=true;await loadAll();st.modal=null;render();toast('Premium ativado! Obrigado por apoiar o Os Doze.');return;}}catch(_){}}}
+  async function start(){err=null;pix=null;draw();try{pix=await pixCreate();draw();poll();}catch(e){err=e.message||'Erro ao gerar o Pix.';draw();}}
+  start();return root;
+}
+function premiumCard(){
+  const u=st.prem?new Date(st.prem):null;
+  if(u)return el('div',{class:'card'},el('div',{class:'name'},'★ Premium ativo'),el('div',{class:'mut'},'Você publica quantos apps quiser, sem gastar pontos. Vale até ',el('b',{},u.toLocaleDateString('pt-BR')),'. Seus pontos continuam guardados.'),IN_TWA?null:el('div',{class:'acts'},el('button',{class:'sec',onclick:()=>openNodeModal(()=>pixModal())},'Renovar mais 30 dias')));
+  if(IN_TWA)return null;
+  return el('div',{class:'card'},el('div',{class:'name'},'Os Doze Premium'),el('div',{class:'mut'},'R$ 4,90 por 30 dias, pago por Pix. Publique quantos apps quiser, sem gastar pontos e sem fila. Você continua ganhando pontos e eles ficam guardados para quando o Premium acabar.'),el('div',{class:'acts'},el('button',{class:'pri',onclick:()=>openNodeModal(()=>pixModal())},'Quero ser Premium')));
+}
+function adminModal(){
+  const root=el('div',{});let d=null;
+  function draw(){root.replaceChildren(el('div',{class:'name'},'Painel Premium'),
+    !d?el('div',{class:'mut'},'Carregando…'):el('div',{},
+      el('div',{class:'mut',style:'margin:6px 0'},'Recebido neste mês: ',el('b',{},'R$ '+Number(d.month_total).toFixed(2).replace('.',','))),
+      el('div',{class:'name',style:'font-size:14px;margin-top:10px'},'Premium agora ('+d.active.length+')'),
+      ...(d.active.length?d.active.map(x=>el('div',{class:'mut'},x.name+' · até '+new Date(x.until).toLocaleDateString('pt-BR'))):[el('div',{class:'mut'},'Ninguém ainda.')]),
+      el('div',{class:'name',style:'font-size:14px;margin-top:10px'},'Últimos pagamentos'),
+      ...(d.recent.length?d.recent.map(x=>el('div',{class:'mut'},x.name+' · R$ '+Number(x.amount).toFixed(2).replace('.',',')+' · '+new Date(x.at).toLocaleString('pt-BR'))):[el('div',{class:'mut'},'Nenhum.')])),
+    el('div',{class:'acts',style:'justify-content:flex-end;margin-top:12px'},el('button',{class:'sec',onclick:closeModal},'Fechar')));}
+  rpc('doze_admin_premium').then(r=>{d=r;draw();}).catch(()=>{});draw();return root;
+}
+function adminCard(){return st.user&&st.user.email==='lpanissa@gmail.com'?el('div',{class:'acts'},el('button',{class:'sec',onclick:()=>openNodeModal(()=>adminModal())},'Painel Premium (só você)')):null;}
 function pointsModal(){
   const root=el('div',{});let rows=null,info=false;
   const REASON={'teste confirmado':'Pontos liberados pelo dono','limite por dono':'Sem pontos: você já pontuou com este dono','check-in':'Check-ins','saiu do teste':'Saiu do teste: pontos perdidos','removido pelo dono':'Removido pelo dono: pontos perdidos'};
@@ -579,11 +621,11 @@ function mineView(){
   }
   if(!st.myApps.length&&!st.showForm)w.append(empty('mine','Você ainda não publicou nenhum app.'));
   st.myApps.filter(a=>a.status!=='encerrado').forEach(a=>{
-    if(a.status==='fila'){const have=st.profile?st.profile.points:0,can=have>=12;
+    if(a.status==='fila'){const have=st.profile?st.profile.points:0,prem=!!st.prem,can=prem||have>=12;
       w.append(el('div',{class:'card',style:'position:relative'},el('button',{class:'pen','aria-label':'Editar app',onclick:()=>{st.edit=a.id;st.keep=null;st.shots=[];st.logo=null;st.showForm=true;pushNav();render();window.scrollTo(0,0);}},penSvg()),
         el('div',{class:'row'},icon(a.icon_url,a.name),el('div',{class:'grow'},el('div',{class:'name',style:'padding-right:40px'},a.name),el('span',{class:'tag w'},'Na fila de espera'),
-          el('div',{class:'mut',style:'margin-top:6px'},can?'Você já tem 12 pontos: pode publicar agora. A publicação gasta 12 pontos.':'Para publicar você precisa de 12 pontos. Você tem '+have+' (faltam '+(12-have)+'). Ganhe pontos testando apps ou convidando amigos.'),
-          el('div',{class:'acts'},el('button',{class:'pri',disabled:!can,onclick:async e=>{e.target.disabled=true;try{await rpc('doze_publish_app',{p_app:a.id});await loadAll();render();toast('App publicado!');}catch(_){e.target.disabled=false;}}},'Publicar (12 pontos)'),
+          el('div',{class:'mut',style:'margin-top:6px'},prem?'Você é Premium: pode publicar agora, sem gastar pontos.':can?'Você já tem 12 pontos: pode publicar agora. A publicação gasta 12 pontos.':'Para publicar você precisa de 12 pontos. Você tem '+have+' (faltam '+(12-have)+'). Ganhe pontos testando apps ou convidando amigos.'),
+          el('div',{class:'acts'},el('button',{class:'pri',disabled:!can,onclick:async e=>{e.target.disabled=true;try{await rpc('doze_publish_app',{p_app:a.id});await loadAll();render();toast('App publicado!');}catch(_){e.target.disabled=false;}}},(prem?'Publicar':'Publicar (12 pontos)')),
             can?null:el('button',{class:'sec sm',onclick:()=>goTab('apps')},'Ganhar pontos'),
             el('button',{class:'sec sm',style:'color:var(--bad)',onclick:()=>openModal('Excluir este app da fila de espera? Não dá para desfazer.',async()=>{await rpc('doze_delete_app',{p_app:a.id});await loadAll();render();toast('App excluído');},'Excluir')},'Excluir'))))));
       return;}
@@ -618,7 +660,7 @@ function meView(){
       el('li',{},'Você toca em "Baixar app", instala e marca "Já instalei" no botão Check-in. O desenvolvedor acompanha seus check-ins e pode remover quem sumir.'),
       el('li',{},'Teste e faça um check-in por dia contando o que testou. Cada check-in vale 1 ponto, que fica pendente até o dono concluir o teste. O teste dura até o dono concluir (precisa de pelo menos 14 check-ins) e pode passar de 14 dias. Se você sair no meio, perde os pontos daquele app.'),
       el('li',{},'Quando o dono de um app aceitar você, o seu app é liberado para receber testadores (um por um).'))),
-    inviteCard(),pushCard(),el('div',{class:'acts'},el('button',{class:'sec',onclick:async()=>{await sb.auth.signOut();}},'Sair da conta'),el('button',{class:'sec',onclick:()=>{location.href='mailto:lpanissa@gmail.com?subject='+encodeURIComponent('Denúncia – Os Doze')+'&body='+encodeURIComponent('Descreva o problema (usuário, app ou conteúdo):\n');}},'Denunciar / Contato')),
+    premiumCard(),inviteCard(),pushCard(),adminCard(),el('div',{class:'acts'},el('button',{class:'sec',onclick:async()=>{await sb.auth.signOut();}},'Sair da conta'),el('button',{class:'sec',onclick:()=>{location.href='mailto:lpanissa@gmail.com?subject='+encodeURIComponent('Denúncia – Os Doze')+'&body='+encodeURIComponent('Descreva o problema (usuário, app ou conteúdo):\n');}},'Denunciar / Contato')),
     el('p',{class:'mut',style:'text-align:center;margin-top:18px'},el('a',{href:'privacidade.html',style:'color:var(--ac)'},'Política de Privacidade')));
 }
 
