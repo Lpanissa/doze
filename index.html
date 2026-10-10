@@ -445,7 +445,7 @@ function detailView(){
   if(mine)acts.append(el('span',{class:'tag'},'Este é o seu app'));
   else if(t)acts.append(el('span',{class:'tag '+(t.status==='pendente'?'w':'ok')},t.status==='pendente'?'Pedido enviado: aguardando o dono':'Você já participa'));
   else acts.append(el('button',{class:'pri',onclick:()=>confirmJoin(a)},'Participar'));
-  if(t&&['adicionado','instalado','concluido'].includes(t.status)){w.append(acts,contactCard(a.id),feedbackBox(t.test_id));acts=null;}
+  if(t&&['adicionado','instalado','concluido'].includes(t.status)){w.append(acts,contactCard(a.id));acts=null;}
   if(acts)w.append(acts,el('p',{class:'mut'},'Você pode ver os detalhes sem se inscrever. O pedido só vai para o dono quando você tocar em "Participar".'));
   return w;
 }
@@ -522,7 +522,7 @@ function testsView(){
       const msg=!t.started_at?'O dono ainda não iniciou o teste. Todos começam juntos.':(t.checkins>=14?'Aguardando o dono confirmar o teste':'');
       if(msg)acts.append(el('span',{class:'mut'},msg));
     }
-    acts.append(el('button',{class:'sec',onclick:()=>openDetail(t.app_id)},'Detalhes e feedback'));
+    acts.append(el('button',{class:'sec',onclick:()=>openDetail(t.app_id)},'Detalhes'));
     if(t.status!=='concluido')acts.append(el('button',{class:'sec',onclick:()=>openModal(t.checkins>0?'Sair deste teste? Você perde os pontos já ganhos com este app e o desenvolvedor perde um testador.':'Sair deste teste? O desenvolvedor perde um testador.',async()=>{await rpc('doze_leave_test',{p_test:t.test_id});await loadAll();render();})},'Sair'));
     body.append(acts);
     w.append(el('div',{class:'card'},el('div',{class:'row'},icon(t.icon_url,t.app_name),g),body));
