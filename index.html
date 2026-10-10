@@ -202,7 +202,7 @@ async function refreshNotifs(){try{const r=await sb.rpc('doze_notifs');if(r.data
 function ntFor(appId,kinds){return (st.nt||[]).filter(x=>x.app_id===appId&&kinds.includes(x.kind)).reduce((n,x)=>n+Number(x.n),0);}
 function ntBadges(appId,kinds,onP){const p=ntFor(appId,['pedido']),c=ntFor(appId,['comentario_dono','comentario_teste']);const out=[];if(ntFor(appId,['aceito']))out.push(el('span',{class:'tag ok'},'Você foi aceito'));if(ntFor(appId,['lembrete']))out.push(el('span',{class:'tag w'},'Lembrete do dono: faça o check-in'));if(kinds.includes('pedido')&&p)out.push(el('span',onP?{class:'tag w',style:'cursor:pointer',onclick:e=>{e.stopPropagation();onP();}}:{class:'tag w'},p+(p>1?' pedidos novos':' pedido novo')));if(c)out.push(el('span',{class:'tag w'},c+(c>1?' comentários novos':' comentário novo')));return out;}
 async function loadAll(){
-  const [a,m,t]=await Promise.all([rpc('doze_list_apps_v5'),rpc('doze_my_apps_v6'),rpc('doze_my_tests_v4')]);
+  const [a,m,t]=await Promise.all([rpc('doze_list_apps_v6'),rpc('doze_my_apps_v7'),rpc('doze_my_tests_v4')]);
   st.apps=a||[];st.myApps=m||[];st.myTests=t||[];
   try{const r=await sb.rpc('doze_notifs');if(r.data)st.nt=r.data;}catch(_){}
   const ids=[...new Set([...st.myApps.filter(x=>x.status==='ativo').map(x=>x.id),...st.myTests.filter(x=>['adicionado','instalado','concluido'].includes(x.status)).map(x=>x.app_id)])];
@@ -401,7 +401,7 @@ function navView(){const tabs=[['apps','Apps'],['tests','Testes'],['mine','Meus 
   return el('nav',{},el('div',{class:'bar2'},tabs.map(([k,l])=>el('a',{href:'#'+k,class:st.tab===k?'on':'',onclick:e=>{e.preventDefault();goTab(k);}},svg(k),l,k==='mine'&&pend?el('span',{class:'dot'},pend):null,k==='tests'&&ci?el('span',{class:'dot'},ci):null))));}
 
 function confirmJoin(a){openModal('Este é um projeto sério de ajuda entre desenvolvedores. Escolha só os apps que você consegue testar de verdade durante todo o teste (pelo menos 14 dias de check-in), sem se inscrever em vários de uma vez.',()=>joinApp(a),'Participar');}
-async function joinApp(a){await rpc('doze_join_test',{p_app:a.id});toast('Pedido enviado! O dono do app precisa te aceitar.');await loadAll();st.detail=null;st.tab='tests';pushNav();render();window.scrollTo(0,0);}
+async function joinApp(a){const r=await rpc('doze_join_test',{p_app:a.id});toast(r&&r.status==='adicionado'?'Você entrou! Agora entre no grupo do Google e baixe o app.':'Pedido enviado! O dono do app precisa te aceitar.');await loadAll();st.detail=null;st.tab='tests';pushNav();render();window.scrollTo(0,0);}
 function cropBlob(file,square){return square?new Promise((res,rej)=>{const img=new Image();const u=URL.createObjectURL(file);img.onload=()=>{const m=Math.min(img.width,img.height),S=Math.min(900,m),c=document.createElement('canvas');c.width=c.height=S;c.getContext('2d').drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,S,S);URL.revokeObjectURL(u);c.toBlob(x=>x?res(x):rej(new Error('imagem inválida')),'image/jpeg',.85);};img.onerror=()=>rej(new Error('Não consegui ler essa imagem'));img.src=u;}):shrink(file);}
 function feedbackBox(testId,hint){
   const list=el('div',{class:'fbl'});const ta=el('textarea',{rows:2,maxlength:600,placeholder:hint||'Escreva seu comentário…',style:'flex:1;min-width:0'});
@@ -465,7 +465,7 @@ function appsView(){
         el('div',{class:'desc'},a.description||'Sem descrição.'),
         (a.start_mode==='livre'?null:bar(Number(a.active_testers),12)),grpLine(a),
         el('div',{class:'acts',style:'justify-content:flex-end'},t&&t.status!=='saiu'?el('span',{class:'tag '+(t.status==='pendente'?'w':'ok')},t.status==='pendente'?'Pedido enviado: aguardando o dono':'Você já participa'):
-          el('button',{class:'pri sm',onclick:e=>{e.stopPropagation();confirmJoin(a);}},'Participar')))));
+          el('button',{class:'pri sm',onclick:e=>{e.stopPropagation();confirmJoin(a);}},a.group_open?'Participar (entrada livre)':'Participar')))));
     }):[empty('box',q?'Nenhum app encontrado para essa busca.':'Ainda não há apps cadastrados. Cadastre o seu na aba "Meus apps".')]));
   };
   const inp=el('input',{placeholder:'Buscar app…',value:st.q,oninput:e=>{st.q=e.target.value;clr.style.display=st.q?'flex':'none';fill();}});
@@ -601,7 +601,7 @@ function mineView(){
   if(st.showForm){
     if(ed&&!st.keep)st.keep=(ed.screenshots||[]).slice();
     const f={};const fld=(k,lbl,type,ph)=>[el('label',{},lbl),(f[k]=type==='area'?el('textarea',{rows:3,placeholder:ph||'',maxlength:500}):el('input',{placeholder:ph||'',maxlength:150}))];
-    const gbox=el('div',{style:'display:none'},el('label',{},'Link de convite do grupo'),(f.group=el('input',{placeholder:'https://groups.google.com/g/…',maxlength:300})),el('p',{class:'mut',style:'margin:4px 0 0'},'Crie um grupo do Google, adicione-o como testador no Play Console e cole aqui o link de convite. Quem for aceito por você recebe esse link.'));
+    const gbox=el('div',{style:'display:none'},el('label',{},'Link de convite do grupo'),(f.group=el('input',{placeholder:'https://groups.google.com/g/…',maxlength:300})),el('label',{style:'margin-top:8px'},'Quem pode entrar'),(f.open=el('select',{},el('option',{value:'fechado'},'Fechado: eu aceito cada pessoa'),el('option',{value:'livre'},'Livre: entra sem eu aceitar'))),el('p',{class:'mut',style:'margin:4px 0 0'},'Crie um grupo do Google, adicione-o como testador no Play Console e cole aqui o link de convite. Quem for aceito por você recebe esse link.'));
     const fcard=el('div',{class:'fcont'},el('div',{style:'display:flex;justify-content:space-between;align-items:center;margin-bottom:10px'},el('div',{class:'name'},ed?'Editar app':'Cadastrar app'),el('button',{type:'button','aria-label':'Fechar',class:'xbtn',onclick:()=>goBack()},'×')),el('div',{style:'display:flex;gap:12px;align-items:flex-start'},logoBox(ed),el('div',{style:'flex:1;min-width:0'},fld('name','Nome do app','',''))),fld('desc','Descrição do app (obrigatória)','area','O que o app faz, em uma ou duas frases'),
       fld('pkg','Nome do pacote (opcional)','','com.exemplo.meuapp'),fld('url','Link de entrada do teste fechado','','https://play.google.com/apps/testing/…'),
       el('div',{},el('label',{},'Como os testadores entram'),(f.join=el('select',{onchange:()=>{gbox.style.display=f.join.value==='grupo'?'block':'none';}},el('option',{value:'lista'},'Lista de e-mails (eu adiciono no Play Console)'),el('option',{value:'grupo'},'Link de grupo (qualquer pessoa com o link entra)')))),
@@ -617,14 +617,14 @@ function mineView(){
         if(!/^https:\/\/play\.google\.com\//.test(url))return toast('O link deve começar com https://play.google.com/',true);
         const gm=f.join.value,gu=f.group.value.trim();if(gm==='grupo'&&!/^https:\/\/groups\.google\.com\//.test(gu))return toast('Cole o link de convite do grupo (começa com https://groups.google.com/)',true);
         e.target.disabled=true;let queued=false;
-        try{const urls=await uploadShots();const logo=await uploadLogo();if(ed){if((st.keep||[]).length+urls.length>8)throw new Error('No máximo 8 prints');await rpc('doze_update_app_v2',{p_mode:f.mode.value,p_app:ed.id,p_name:f.name.value.trim(),p_description:f.desc.value.trim(),p_package:f.pkg.value.trim(),p_opt_in:url,p_icon:logo||ed.icon_url||'',p_shots:(st.keep||[]).concat(urls)});}else{const cr=await rpc('doze_create_app_v4',{p_name:f.name.value.trim(),p_description:f.desc.value.trim(),p_package:f.pkg.value.trim(),p_opt_in:url,p_icon:logo,p_shots:urls});await rpc('doze_set_category',{p_app:cr.id,p_cat:f.cat.value});await rpc('doze_set_join',{p_app:cr.id,p_method:gm,p_group_url:gu});queued=cr.status==='fila';}
-          if(ed){await rpc('doze_set_category',{p_app:ed.id,p_cat:f.cat.value});await rpc('doze_set_join',{p_app:ed.id,p_method:gm,p_group_url:gu});}
+        try{const urls=await uploadShots();const logo=await uploadLogo();if(ed){if((st.keep||[]).length+urls.length>8)throw new Error('No máximo 8 prints');await rpc('doze_update_app_v2',{p_mode:f.mode.value,p_app:ed.id,p_name:f.name.value.trim(),p_description:f.desc.value.trim(),p_package:f.pkg.value.trim(),p_opt_in:url,p_icon:logo||ed.icon_url||'',p_shots:(st.keep||[]).concat(urls)});}else{const cr=await rpc('doze_create_app_v4',{p_name:f.name.value.trim(),p_description:f.desc.value.trim(),p_package:f.pkg.value.trim(),p_opt_in:url,p_icon:logo,p_shots:urls});await rpc('doze_set_category',{p_app:cr.id,p_cat:f.cat.value});await rpc('doze_set_join_v2',{p_app:cr.id,p_method:gm,p_group_url:gu,p_open:f.open.value==='livre'});queued=cr.status==='fila';}
+          if(ed){await rpc('doze_set_category',{p_app:ed.id,p_cat:f.cat.value});await rpc('doze_set_join_v2',{p_app:ed.id,p_method:gm,p_group_url:gu,p_open:f.open.value==='livre'});}
           st.shots=[];st.logo=null;st.keep=null;
           st.showForm=false;replaceNav();await loadAll();render();toast(ed?'App atualizado!':(queued?'App cadastrado e na fila de espera. Quando você tiver 12 pontos, é só publicar.':'App cadastrado! Ele aparece para os outros quando você entrar no teste de um app.'),false);}catch(err){if(err&&err.message&&!err.code)toast(err.message,true);e.target.disabled=false;}
       }},ed?'Salvar alterações':'Cadastrar app');
     const delBtn=ed?el('button',{class:'sec',style:'margin-top:8px;width:100%;color:var(--bad)',onclick:()=>openModal('Excluir este app? Ele some da lista e os pedidos dos testadores são apagados. Não dá para desfazer.',async()=>{await rpc('doze_delete_app',{p_app:ed.id});st.showForm=false;replaceNav();await loadAll();render();toast('App excluído');},'Excluir')},'Excluir este app'):null;
     f.cat.value=(ed&&ed.category)||'Outros';
-    if(ed){f.name.value=ed.name||'';f.desc.value=ed.description||'';f.pkg.value=ed.package_name||'';f.url.value=ed.opt_in_url||'';f.mode.value=ed.start_mode||'grupo';f.join.value=ed.join_method||'lista';f.group.value=ed.group_url||'';gbox.style.display=f.join.value==='grupo'?'block':'none';}
+    if(ed){f.name.value=ed.name||'';f.desc.value=ed.description||'';f.pkg.value=ed.package_name||'';f.url.value=ed.opt_in_url||'';f.mode.value=ed.start_mode||'grupo';f.join.value=ed.join_method||'lista';f.group.value=ed.group_url||'';f.open.value=ed.group_open?'livre':'fechado';gbox.style.display=f.join.value==='grupo'?'block':'none';}
     w.append(el('div',{class:'ovl',onclick:e=>{if(e.target===e.currentTarget)goBack();}},el('div',{class:'mdl fmc'},el('div',{class:'fscroll'},fcard),el('div',{class:'ffoot'},saveBtn,delBtn))));
   }
   if(!st.myApps.length&&!st.showForm)w.append(empty('mine','Você ainda não publicou nenhum app.'));
