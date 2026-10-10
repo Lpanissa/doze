@@ -1,0 +1,6 @@
+-- Os Doze — 10/10/2026 — Endurecimento: anon sem acesso; só as funções usadas pelo app ficam abertas a usuários logados.
+-- (aplicado em produção via apply_migration: doze_revoke_anon_funcs, doze_tighten_table_grants, doze_revoke_unused_funcs, doze_perf_indexes)
+-- 1) revoke execute from public/anon em todas as public.doze_*; triggers sem acesso nenhum
+-- 2) revoke all nas tabelas doze_* para anon; tabelas só-servidor também para authenticated
+-- 3) versões antigas (v1..v5) e helpers internos (doze_push_send, doze_clawback, doze_remind_checkins, doze_app_liberado, doze_grant_premium...) fechados a authenticated
+-- 4) índices em chaves estrangeiras
