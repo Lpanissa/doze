@@ -200,7 +200,7 @@ function bar(n,total){return el('div',{class:'bar'},el('i',{style:'width:'+Math.
 
 async function refreshNotifs(){try{const r=await sb.rpc('doze_notifs');if(r.data){st.nt=r.data;const nav=document.querySelector('nav');if(nav&&!st.modal&&!st.showForm&&!document.querySelector('.fbl')){const ph=document.activeElement;if(!ph||!/INPUT|TEXTAREA|SELECT/.test(ph.tagName))render();}}}catch(_){}}
 function ntFor(appId,kinds){return (st.nt||[]).filter(x=>x.app_id===appId&&kinds.includes(x.kind)).reduce((n,x)=>n+Number(x.n),0);}
-function ntBadges(appId,kinds,onP){const p=ntFor(appId,['pedido']),c=ntFor(appId,['comentario_dono','comentario_teste']);const out=[];if(ntFor(appId,['aceito']))out.push(el('span',{class:'tag ok'},'Você foi aceito'));if(ntFor(appId,['lembrete']))out.push(el('span',{class:'tag w'},'Lembrete do dono: faça o check-in'));if(kinds.includes('pedido')&&p)out.push(el('span',onP?{class:'tag w',style:'cursor:pointer',onclick:e=>{e.stopPropagation();onP();}}:{class:'tag w'},p+(p>1?' pedidos novos':' pedido novo')));if(c)out.push(el('span',{class:'tag w'},c+(c>1?' comentários novos':' comentário novo')));return out;}
+function ntBadges(appId,kinds,onP){const p=ntFor(appId,['pedido']),c=ntFor(appId,['comentario_dono','comentario_teste']);const out=[];if(ntFor(appId,['aceito']))out.push(el('span',{class:'tag ok'},'Você foi aceito'));if(ntFor(appId,['ajuda']))out.push(el('span',{class:'tag w'},'O dono pediu sua ajuda para testar'));if(ntFor(appId,['lembrete']))out.push(el('span',{class:'tag w'},'Lembrete do dono: faça o check-in'));if(kinds.includes('pedido')&&p)out.push(el('span',onP?{class:'tag w',style:'cursor:pointer',onclick:e=>{e.stopPropagation();onP();}}:{class:'tag w'},p+(p>1?' pedidos novos':' pedido novo')));if(c)out.push(el('span',{class:'tag w'},c+(c>1?' comentários novos':' comentário novo')));return out;}
 async function loadAll(){
   const [a,m,t]=await Promise.all([rpc('doze_list_apps_v6'),rpc('doze_my_apps_v7'),rpc('doze_my_tests_v4')]);
   st.apps=a||[];st.myApps=m||[];st.myTests=t||[];
@@ -324,7 +324,7 @@ function testersModal(a){
         el('div',{class:'stats',style:'margin-top:8px'},el('div',{class:'stat'},el('b',{},p.tests_active??0),el('span',{},'Testando agora')),el('div',{class:'stat'},el('b',{},p.checkins_total??0),el('span',{},'Check-ins feitos')),el('div',{class:'stat'},el('b',{},p.points??0),el('span',{},'Pontos'))),
         el('div',{class:'mut',style:'margin-top:10px;text-align:center'},'Check-ins neste app: ',el('b',{},p.checkins??0),p.member_since?el('span',{},' · Membro desde '+new Date(p.member_since).toLocaleDateString('pt-BR',{month:'short',year:'numeric'})):null),
         el('div',{class:'mut',style:'margin-top:6px;text-align:center'},'Já saiu de ',el('b',{},(prof.tr&&prof.tr.left_count)||0),' teste(s)',((prof.tr&&prof.tr.reports)>0)?el('span',{style:'color:var(--bad);font-weight:700'},' · denunciado por '+prof.tr.reports+' dono(s)'):null),
-        el('div',{class:'acts',style:'justify-content:flex-end;margin-top:14px'},el('button',{class:'sec',onclick:()=>{view='list';draw();}},'Voltar')));return;}
+        el('div',{class:'acts',style:'justify-content:flex-end;margin-top:14px'},(!prof.blk&&(p.status==='adicionado'||p.status==='instalado'))?el('button',{class:'pri',onclick:async e=>{const bt=e.target;bt.disabled=true;try{await rpc('doze_ask_help',{p_test:t.test_id});toast('Pedido de ajuda enviado!');bt.textContent='Ajuda pedida hoje';}catch(_){bt.disabled=false;}}},'Pedir ajuda'):null,el('button',{class:'sec',onclick:()=>{view='list';draw();}},'Voltar')));return;}
     const emails=list.map(t=>t.email).filter(Boolean);
     put(el('div',{class:'name',style:'margin-bottom:10px'},'Testadores de '+a.name),
       list.length?el('div',{},
@@ -724,7 +724,7 @@ async function pollNew(){
     const old=new Map((st.nt||[]).map(x=>[key(x),Number(x.n)]));
     const fresh=r.data.filter(x=>Number(x.n)>(old.get(key(x))||0));
     st.nt=r.data;
-    if(fresh.length){const x=fresh[0];toast(x.kind==='pedido'?'Novo pedido de teste em '+x.app_name:x.kind==='aceito'?'Você foi aceito em '+x.app_name:x.kind==='lembrete'?'Lembrete: faça o check-in de '+x.app_name:'Novo comentário em '+x.app_name);}
+    if(fresh.length){const x=fresh[0];toast(x.kind==='pedido'?'Novo pedido de teste em '+x.app_name:x.kind==='aceito'?'Você foi aceito em '+x.app_name:x.kind==='lembrete'?'Lembrete: faça o check-in de '+x.app_name:x.kind==='ajuda'?'O dono de '+x.app_name+' pediu sua ajuda para testar':'Novo comentário em '+x.app_name);}
     lastPend=1;
     if(fresh.length||old.size!==r.data.length){await loadAll();if(!st.showForm&&!st.modal&&!document.querySelector('.fbl')){const ph=document.activeElement;if(!ph||!/INPUT|TEXTAREA|SELECT/.test(ph.tagName))render();}}
   }catch(_){}
